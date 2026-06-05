@@ -9,6 +9,7 @@ export interface ApiResponse<T> {
 }
 
 export interface ApiReject {
-  error: string;
-  message?: string;
+  message: string;
+  statusCode: number;
+  error?: string;
 }

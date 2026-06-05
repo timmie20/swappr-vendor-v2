@@ -10,8 +10,8 @@ type NavItem = {
 };
 
 export const NAV_ITEMS: NavItem[] = [
-  { title: "Overview", url: "/dashboard", icon: Icons.dashboard },
-  { title: "Inventory", url: "/dashboard/inventory", icon: Icons.product },
-  { title: "Orders", url: "/dashboard/orders", icon: Icons.package },
-  { title: "Customers", url: "/dashboard/customers", icon: Icons.user2 },
+  { title: "Overview", url: "/overview", icon: Icons.dashboard },
+  { title: "Inventory", url: "/inventory", icon: Icons.product },
+  { title: "Orders", url: "/orders", icon: Icons.package },
+  { title: "Customers", url: "/customers", icon: Icons.user2 },
 ];
