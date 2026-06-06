@@ -33,17 +33,13 @@ export function setAuthCookies(
     maxAge: 60 * 60 * 24 * 30, // 30 days
   });
 
-  cookieStore.set(
-    COOKIE_NAMES.EXPIRES_AT,
-    String(tokens.access_token_expires_at),
-    {
-      httpOnly: false,
-      secure: IS_PRODUCTION,
-      sameSite: "strict" as const,
-      path: "/",
-      maxAge: 60 * 15,
-    },
-  );
+  cookieStore.set(COOKIE_NAMES.EXPIRES_AT, String(tokens.expires_at), {
+    httpOnly: false,
+    secure: IS_PRODUCTION,
+    sameSite: "strict" as const,
+    path: "/",
+    maxAge: 60 * 15,
+  });
 }
 
 export function clearAuthCookies(

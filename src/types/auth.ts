@@ -1,7 +1,7 @@
 export interface AuthTokens {
   access_token: string;
   refresh_token: string;
-  access_token_expires_at: number; // Unix timestamp in ms
+  expires_at: number; // Unix timestamp in ms — converted from ISO at login
 }
 
 export interface VendorSession {
