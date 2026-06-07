@@ -3,8 +3,10 @@ import {
   clearAuthCookies,
   COOKIE_NAMES,
   setAuthCookies,
+  updateAccessTokenCookie,
 } from "./lib/auth/cookies";
-import { AuthTokens } from "./types/auth";
+import { AuthTokens, RefreshResponse } from "./types/auth";
+import { serverApi } from "./lib/api/server";
 
 // Routes that don't require authentication
 const PUBLIC_ROUTES = ["/login", "/register", "/forgot-password"];
@@ -34,29 +36,19 @@ function isExpired(expiresAt: number | null, bufferMs = 60_000): boolean {
   return Date.now() >= expiresAt - bufferMs;
 }
 
-async function attemptRefresh(
+export async function attemptRefresh(
   refreshToken: string,
-): Promise<AuthTokens | null> {
+): Promise<RefreshResponse | null> {
   try {
-    const response = await fetch(`${process.env.API_BASE_URL}/auth/refresh`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refresh_token: refreshToken }),
+    const { data } = await serverApi.post<RefreshResponse>("/auth/refresh", {
+      refresh_token: refreshToken,
     });
 
-    if (!response.ok) return null;
-
-    const data = await response.json();
-
-    // Validate shape — don't trust external data blindly
-    if (
-      !data.access_token ||
-      !data.refresh_token ||
-      !data.access_token_expires_at
-    ) {
+    if (!data.access_token || !data.expires_at) {
       return null;
     }
-    return data as AuthTokens;
+
+    return data;
   } catch {
     return null;
   }
@@ -110,7 +102,7 @@ export async function middleware(request: NextRequest) {
 
     // Refresh succeeded — update cookies and continue with original request
     const response = NextResponse.next();
-    setAuthCookies(response.cookies, newTokens);
+    updateAccessTokenCookie(response.cookies, newTokens);
     return response;
   }
 
@@ -119,5 +111,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|icons|images).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|icons|images|api/auth).*)",
+  ],
 };

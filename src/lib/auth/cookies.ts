@@ -1,6 +1,6 @@
 import type { ResponseCookies } from "next/dist/compiled/@edge-runtime/cookies";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
-import type { AuthTokens } from "@/types/auth";
+import type { AuthTokens, RefreshResponse } from "@/types/auth";
 
 const COOKIE_NAMES = {
   ACCESS_TOKEN: "swappr_access",
@@ -37,6 +37,24 @@ export function setAuthCookies(
     httpOnly: false,
     secure: IS_PRODUCTION,
     sameSite: "strict" as const,
+    path: "/",
+    maxAge: 60 * 15,
+  });
+}
+
+export function updateAccessTokenCookie(
+  cookieStore: ResponseCookies | ReadonlyRequestCookies,
+  tokens: RefreshResponse,
+) {
+  cookieStore.set(COOKIE_NAMES.ACCESS_TOKEN, tokens.access_token, {
+    ...BASE_COOKIE_OPTIONS,
+    maxAge: 60 * 15,
+  });
+
+  cookieStore.set(COOKIE_NAMES.EXPIRES_AT, String(tokens.expires_at), {
+    httpOnly: false,
+    secure: IS_PRODUCTION,
+    sameSite: "strict",
     path: "/",
     maxAge: 60 * 15,
   });

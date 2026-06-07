@@ -10,11 +10,14 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarFooter,
 } from "../ui/sidebar";
-import { Package } from "lucide-react";
 import { NAV_ITEMS } from "@/constants/nav-items";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
+import { Button } from "../ui/button";
+import { Icons } from "./icons";
 
 export default function AppSidebar() {
   const path = usePathname();
@@ -52,6 +55,38 @@ export default function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="border-t p-4">
+        <Link
+          href="/profile"
+          className="hover:bg-muted focus-visible:ring-ring mb-4 flex items-center gap-3 rounded-lg p-2 transition-colors focus-visible:ring-1 focus-visible:outline-none"
+          // onClick={isMobile ? () => setOpenMobile(false) : undefined}
+        >
+          <div className="bg-muted flex size-10 items-center justify-center rounded-full">
+            <Icons.user size={18} />
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium">
+              {vendor?.business_name}
+            </p>
+            <p className="text-muted-foreground truncate text-xs">
+              {vendor?.email}
+            </p>
+          </div>
+
+          <Icons.chevronRight
+            size={16}
+            className="text-muted-foreground shrink-0"
+          />
+        </Link>
+
+        <form action="/auth/sign-out" method="post">
+          <Button type="submit" className="w-full justify-start gap-2">
+            <Icons.logout size={18} />
+            Log out
+          </Button>
+        </form>
+      </SidebarFooter>
     </Sidebar>
   );
 }
