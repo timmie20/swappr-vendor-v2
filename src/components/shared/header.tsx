@@ -2,30 +2,47 @@
 import React, { useState } from "react";
 import { SidebarTrigger } from "../ui/sidebar";
 import { Button } from "../ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { Bell, Download, Filter } from "lucide-react";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "../ui/select";
+import { Bell } from "lucide-react";
+import { VendorSession } from "@/types/auth";
+import UserSummary from "../user-summary";
+import { Icons } from "./icons";
 
-export default function Header() {
-  const [selectedPeriod, setSelectedPeriod] = useState("7d");
+type HeaderProps = {
+  user: VendorSession;
+};
+
+export default function Header({ user }: HeaderProps) {
+  // const [selectedPeriod, setSelectedPeriod] = useState("7d");
 
   return (
-    <header className="flex h-20 items-center justify-between border-b px-6">
+    <header className="flex h-22 items-center justify-between border-b px-6">
       <div className="flex items-center space-x-4">
         <SidebarTrigger />
         <div>
-          <h1 className="text-2xl font-bold">New Things Manager Dashboard</h1>
+          <h1 className="text-2xl font-bold">
+            Welcome back, {user.businessName}
+          </h1>
           <p className="text-sm text-muted-foreground">
-            Welcome back, here’s what’s happening with your store today.
+            Here’s what’s happening with your store today.
           </p>
         </div>
       </div>
+
       <div className="flex items-center space-x-4">
+        <Button variant="outline" size="icon-lg" className="cursor-pointer">
+          <Icons.bell className="w-4 h-4" />
+        </Button>
+
+        <UserSummary user={user} />
+      </div>
+      {/* <div className="flex items-center space-x-4">
         <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
           <SelectTrigger className="w-32">
             <SelectValue />
@@ -48,7 +65,7 @@ export default function Header() {
         <Button variant="outline" size="sm">
           <Bell className="w-4 h-4" />
         </Button>
-      </div>
+      </div> */}
     </header>
   );
 }

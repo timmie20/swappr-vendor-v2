@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   clearAuthCookies,
   COOKIE_NAMES,
-  setAuthCookies,
   updateAccessTokenCookie,
 } from "./lib/auth/cookies";
-import { AuthTokens, RefreshResponse } from "./types/auth";
+import { RefreshResponse } from "./types/auth";
 import { serverApi } from "./lib/api/server";
 
 // Routes that don't require authentication
@@ -48,7 +47,10 @@ export async function attemptRefresh(
       return null;
     }
 
-    return data;
+    return {
+      access_token: data.access_token,
+      expires_at: new Date(data.expires_at).getTime(),
+    };
   } catch {
     return null;
   }

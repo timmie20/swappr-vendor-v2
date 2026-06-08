@@ -26,6 +26,7 @@ export async function POST(request: Request) {
     console.error("Error occurred while logging out:", error);
   } finally {
     clearAuthCookies(cookieStore);
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   return NextResponse.json(

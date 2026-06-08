@@ -42,14 +42,16 @@ export default function SignInForm() {
 
   return (
     <div className="w-full space-y-6 px-4 md:px-0">
-      <Image
-        src="/assets/swappr-logo-dark.png"
-        alt="Swappr"
-        width={200}
-        height={40}
-        priority
-        className="h-10 w-auto cursor-pointer"
-      />
+      <div className="flex items-center justify-center">
+        <Image
+          src="/assets/swappr-logo-dark.png"
+          alt="Swappr"
+          width={200}
+          height={40}
+          priority
+          className="h-10 w-auto cursor-pointer"
+        />
+      </div>
       <h1 className="font-switzer text-center text-2xl font-bold">
         Let&apos;s get you Signed in
       </h1>

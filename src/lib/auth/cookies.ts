@@ -4,7 +4,7 @@ import type { AuthTokens, RefreshResponse } from "@/types/auth";
 
 const COOKIE_NAMES = {
   ACCESS_TOKEN: "swappr_access",
-  REFRESH_TOKEN: "swappr_refresh",
+  REFRESH_TOKEN: "swappr_refresh_token",
   EXPIRES_AT: "swappr_expires_at",
 } as const;
 
@@ -29,8 +29,7 @@ export function setAuthCookies(
 
   cookieStore.set(COOKIE_NAMES.REFRESH_TOKEN, tokens.refresh_token, {
     ...BASE_COOKIE_OPTIONS,
-    path: "/api/auth/refresh",
-    maxAge: 60 * 60 * 24 * 30, // 30 days
+    maxAge: 60 * 60 * 24 * 7,
   });
 
   cookieStore.set(COOKIE_NAMES.EXPIRES_AT, String(tokens.expires_at), {
@@ -40,6 +39,11 @@ export function setAuthCookies(
     path: "/",
     maxAge: 60 * 15,
   });
+
+  console.log(
+    cookieStore.get(COOKIE_NAMES.ACCESS_TOKEN),
+    cookieStore.get(COOKIE_NAMES.REFRESH_TOKEN),
+  );
 }
 
 export function updateAccessTokenCookie(
