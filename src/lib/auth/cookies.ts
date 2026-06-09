@@ -24,7 +24,7 @@ export function setAuthCookies(
 ): void {
   cookieStore.set(COOKIE_NAMES.ACCESS_TOKEN, tokens.access_token, {
     ...BASE_COOKIE_OPTIONS,
-    maxAge: 60 * 15, // 15 minutes
+    maxAge: 60 * 50, // 50 minutes — matches backend
   });
 
   cookieStore.set(COOKIE_NAMES.REFRESH_TOKEN, tokens.refresh_token, {
@@ -37,13 +37,13 @@ export function setAuthCookies(
     secure: IS_PRODUCTION,
     sameSite: "strict" as const,
     path: "/",
-    maxAge: 60 * 15,
+    maxAge: 60 * 50, // must match access token
   });
 
-  console.log(
-    cookieStore.get(COOKIE_NAMES.ACCESS_TOKEN),
-    cookieStore.get(COOKIE_NAMES.REFRESH_TOKEN),
-  );
+  // console.log(
+  //   cookieStore.get(COOKIE_NAMES.ACCESS_TOKEN),
+  //   cookieStore.get(COOKIE_NAMES.REFRESH_TOKEN),
+  // );
 }
 
 export function updateAccessTokenCookie(

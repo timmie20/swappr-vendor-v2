@@ -38,6 +38,7 @@ function isExpired(expiresAt: number | null, bufferMs = 60_000): boolean {
 export async function attemptRefresh(
   refreshToken: string,
 ): Promise<RefreshResponse | null> {
+  console.log("Attempting token refresh with refresh token:", refreshToken);
   try {
     const { data } = await serverApi.post<RefreshResponse>("/auth/refresh", {
       refresh_token: refreshToken,
@@ -54,6 +55,23 @@ export async function attemptRefresh(
   } catch {
     return null;
   }
+}
+
+export async function handleTokenRefresh(
+  refreshToken: string,
+  request: NextRequest,
+): Promise<NextResponse> {
+  const newTokens = await attemptRefresh(refreshToken);
+
+  if (!newTokens) {
+    const response = NextResponse.redirect(new URL("/login", request.url));
+    clearAuthCookies(response.cookies);
+    return response;
+  }
+
+  const response = NextResponse.next();
+  updateAccessTokenCookie(response.cookies, newTokens);
+  return response;
 }
 
 export async function middleware(request: NextRequest) {
@@ -75,13 +93,16 @@ export async function middleware(request: NextRequest) {
   if (isPublicRoute(pathname)) {
     return NextResponse.next();
   }
-
-  // ── 3. No session at all — redirect to login ──────────────────────────
+  // ── 3. No access token cookie ─────────────────────────────────────────
   if (!hasSession) {
-    const loginUrl = new URL("/login", request.url);
-    // Preserve the intended destination so we can redirect back after login
-    loginUrl.searchParams.set("callbackUrl", pathname);
-    return NextResponse.redirect(loginUrl);
+    if (!refreshToken) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Access token gone but refresh token exists — attempt recovery
+    return handleTokenRefresh(refreshToken, request);
   }
 
   // ── 4. Session exists but token is expired — attempt silent refresh ───
@@ -93,19 +114,8 @@ export async function middleware(request: NextRequest) {
       return response;
     }
 
-    const newTokens = await attemptRefresh(refreshToken);
-
-    if (!newTokens) {
-      // Refresh failed (token revoked, expired, backend error)
-      const response = NextResponse.redirect(new URL("/login", request.url));
-      clearAuthCookies(response.cookies);
-      return response;
-    }
-
-    // Refresh succeeded — update cookies and continue with original request
-    const response = NextResponse.next();
-    updateAccessTokenCookie(response.cookies, newTokens);
-    return response;
+    // Attempt to refresh tokens and continue if successful
+    return handleTokenRefresh(refreshToken, request);
   }
 
   // ── 5. Valid session — proceed ─────────────────────────────────────────
