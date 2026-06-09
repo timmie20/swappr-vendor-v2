@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import {
   Sidebar,
@@ -8,17 +9,15 @@ import {
   SidebarGroupLabel,
   SidebarGroupContent,
   SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
+  SidebarFooter,
 } from "../ui/sidebar";
-import { Package } from "lucide-react";
 import { NAV_ITEMS } from "@/constants/nav-items";
-import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { Button } from "../ui/button";
+import { Icons } from "./icons";
+import Item from "./nav-item";
 
 export default function AppSidebar() {
-  const path = usePathname();
-
   return (
     <Sidebar>
       <SidebarHeader className="border-b px-6 py-4">
@@ -39,19 +38,23 @@ export default function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {NAV_ITEMS.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={path === item.url}>
-                    <a href={item.url} className="flex items-center space-x-2">
-                      <item.icon className="w-4 h-4" />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <Item key={item.title} item={item} />
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="border-t p-4">
+        <form action="/api/auth/logout" method="post">
+          <Button
+            type="submit"
+            className="w-full justify-start gap-2 cursor-pointer"
+          >
+            <Icons.logout size={18} />
+            Log out
+          </Button>
+        </form>
+      </SidebarFooter>
     </Sidebar>
   );
 }

@@ -1,6 +1,6 @@
 import { Icons } from "@/components/shared/icons";
 
-type NavItem = {
+export type NavItem = {
   title: string;
   url: string;
   icon: React.ComponentType<{
