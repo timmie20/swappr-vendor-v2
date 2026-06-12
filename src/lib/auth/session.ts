@@ -1,31 +1,12 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { getAccessToken, getExpiresAt } from "./cookies";
 import type { VendorProfile, VendorSession } from "@/types/auth";
-import { serverApi } from "../api/server";
 import { cache } from "react";
+import { serverFetch } from "../api/server";
 
-/**
- * Use in Server Components and Route Handlers to get the current session.
- * Returns null if unauthenticated — does NOT redirect.
- * Use requireSession() when you need to enforce auth.
- */
 export const getServerSession = cache(
   async (): Promise<VendorSession | null> => {
-    const cookieStore = await cookies();
-    const accessToken = getAccessToken(cookieStore);
-
-    if (!accessToken) return null;
-
     try {
-      const { data: vendor } = await serverApi.get<VendorProfile>(
-        "/vendors/me",
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-      );
+      const vendor = await serverFetch<VendorProfile>("/vendors/me");
 
       return {
         id: vendor.id,
@@ -33,7 +14,6 @@ export const getServerSession = cache(
         isVerified: vendor.is_verified,
         businessName: vendor.business_name,
         logoUrl: vendor.logo_url,
-        // expiresAt: getExpiresAt(cookieStore) ?? 0,
       };
     } catch {
       return null;

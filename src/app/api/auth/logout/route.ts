@@ -5,7 +5,6 @@ import {
   getRefreshToken,
 } from "@/lib/auth/cookies";
 import { cookies } from "next/headers";
-import { serverApi } from "@/lib/api/server";
 
 export async function POST(request: Request) {
   const cookieStore = await cookies();
@@ -13,20 +12,18 @@ export async function POST(request: Request) {
   const refreshToken = getRefreshToken(cookieStore);
 
   try {
-    await serverApi.post(
-      "/auth/logout",
-      { refresh_token: refreshToken },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    await fetch(`${process.env.API_BASE_URL}/auth/logout`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
-    );
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
   } catch (error) {
     console.error("Error occurred while logging out:", error);
   } finally {
     clearAuthCookies(cookieStore);
-    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   return NextResponse.json(

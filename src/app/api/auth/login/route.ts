@@ -5,7 +5,6 @@ import { NextResponse } from "next/server";
 import { AuthTokens } from "@/types/auth";
 import { cookies } from "next/headers";
 import { setAuthCookies } from "@/lib/auth/cookies";
-import { serverApi } from "@/lib/api/server";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -20,10 +19,13 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { data } = await serverApi.post("/auth/vendor/login", {
-      email: body.email,
-      password: body.password,
+    const res = await fetch(`${process.env.API_BASE_URL}/auth/vendor/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: body.email, password: body.password }),
     });
+
+    const data = await res.json();
 
     const tokens: AuthTokens = {
       access_token: data.access_token,

@@ -16,8 +16,10 @@ import Image from "next/image";
 import { Button } from "../ui/button";
 import { Icons } from "./icons";
 import Item from "./nav-item";
+import { useLogout } from "@/hooks/use-auth";
 
 export default function AppSidebar() {
+  const { mutate: logOut } = useLogout();
   return (
     <Sidebar>
       <SidebarHeader className="border-b px-6 py-4">
@@ -45,10 +47,10 @@ export default function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="border-t p-4">
-        <form action="/api/auth/logout" method="post">
+        <form action={() => logOut()} className="w-full">
           <Button
             type="submit"
-            className="w-full justify-start gap-2 cursor-pointer"
+            className="w-full cursor-pointer justify-start gap-2"
           >
             <Icons.logout size={18} />
             Log out

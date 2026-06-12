@@ -22,22 +22,22 @@ export default function Header({ user }: HeaderProps) {
   // const [selectedPeriod, setSelectedPeriod] = useState("7d");
 
   return (
-    <header className="flex h-22 items-center justify-between border-b px-6">
+    <header className="bg-background sticky top-0 z-50 flex h-22 shrink-0 items-center justify-between border-b px-6">
+      {" "}
       <div className="flex items-center space-x-4">
         <SidebarTrigger />
         <div>
           <h1 className="text-2xl font-bold">
             Welcome back, {user.businessName}
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Here’s what’s happening with your store today.
           </p>
         </div>
       </div>
-
       <div className="flex items-center space-x-4">
         <Button variant="outline" size="icon-lg" className="cursor-pointer">
-          <Icons.bell className="w-4 h-4" />
+          <Icons.bell className="h-4 w-4" />
         </Button>
 
         <UserSummary user={user} />

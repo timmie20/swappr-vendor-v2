@@ -42,9 +42,9 @@ export default function SignInForm() {
 
   return (
     <div className="w-full space-y-6 px-4 md:px-0">
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center lg:hidden">
         <Image
-          src="/assets/swappr-logo-dark.png"
+          src="https://res.cloudinary.com/doi4zvlbi/image/upload/v1781254997/swappr-logo-dark_je8vrs.png"
           alt="Swappr"
           width={200}
           height={40}

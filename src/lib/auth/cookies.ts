@@ -3,19 +3,20 @@ import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension
 import type { AuthTokens, RefreshResponse } from "@/types/auth";
 
 const COOKIE_NAMES = {
-  ACCESS_TOKEN: "swappr_access",
-  REFRESH_TOKEN: "swappr_refresh_token",
-  EXPIRES_AT: "swappr_expires_at",
+  ACCESS_TOKEN: "_swappr_access",
+  REFRESH_TOKEN: "_swappr_refresh",
+  EXPIRES_AT: "_swappr_expires_at",
 } as const;
+
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 const BASE_COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "strict" as const,
+  secure: IS_PRODUCTION,
+  sameSite: IS_PRODUCTION ? "lax" : "lax",
   path: "/",
-};
-
-const IS_PRODUCTION = process.env.NODE_ENV === "production";
+  ...(IS_PRODUCTION && { domain: ".swappr.com.ng" }),
+} as const;
 
 // ─── Setters (used in Route Handlers after login / refresh) ───────────────
 export function setAuthCookies(
@@ -68,10 +69,7 @@ export function clearAuthCookies(
   cookieStore: ResponseCookies | ReadonlyRequestCookies,
 ): void {
   cookieStore.set(COOKIE_NAMES.ACCESS_TOKEN, "", { maxAge: 0, path: "/" });
-  cookieStore.set(COOKIE_NAMES.REFRESH_TOKEN, "", {
-    maxAge: 0,
-    path: "/api/auth/refresh",
-  });
+  cookieStore.set(COOKIE_NAMES.REFRESH_TOKEN, "", { maxAge: 0, path: "/" });
   cookieStore.set(COOKIE_NAMES.EXPIRES_AT, "", { maxAge: 0, path: "/" });
 }
 

@@ -5,7 +5,6 @@ import {
   updateAccessTokenCookie,
 } from "./lib/auth/cookies";
 import { RefreshResponse } from "./types/auth";
-import { serverApi } from "./lib/api/server";
 
 // Routes that don't require authentication
 const PUBLIC_ROUTES = ["/login", "/register", "/forgot-password"];
@@ -38,15 +37,18 @@ function isExpired(expiresAt: number | null, bufferMs = 60_000): boolean {
 export async function attemptRefresh(
   refreshToken: string,
 ): Promise<RefreshResponse | null> {
-  console.log("Attempting token refresh with refresh token:", refreshToken);
   try {
-    const { data } = await serverApi.post<RefreshResponse>("/auth/refresh", {
-      refresh_token: refreshToken,
+    const res = await fetch(`${process.env.API_BASE_URL}/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: refreshToken }),
     });
 
-    if (!data.access_token || !data.expires_at) {
-      return null;
-    }
+    if (!res.ok) return null;
+
+    const data = await res.json();
+
+    if (!data.access_token || !data.expires_at) return null;
 
     return {
       access_token: data.access_token,

@@ -1,6 +1,7 @@
 import React from "react";
 import { InteractiveGridPattern } from "@/components/interactive-grid";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 export default function AuthLayout({
   children,
@@ -8,19 +9,19 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative min-h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0 overflow-hidden">
+    <div className="relative min-h-screen flex-col items-center justify-center overflow-hidden md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
       <div className="bg-muted relative hidden h-full flex-col p-10 text-white lg:flex dark:border-r">
         <div className="absolute inset-0 bg-zinc-900" />
-        {/* <div className="text-large relative z-20 flex items-center font-medium">
+        <div className="relative z-20 flex items-center font-medium">
           <Image
-            src="./assets/swappr-logo-dark.png"
+            src="https://res.cloudinary.com/doi4zvlbi/image/upload/v1781254997/swappr-logo-light_n0kb7m.png"
             alt="Swappr"
             width={200}
             height={40}
             priority
             className="h-10 w-auto cursor-pointer"
           />
-        </div> */}
+        </div>
         <InteractiveGridPattern
           className={cn(
             "mask-[radial-gradient(400px_circle_at_center,white,transparent)]",
