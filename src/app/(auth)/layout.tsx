@@ -2,6 +2,7 @@ import React from "react";
 import { InteractiveGridPattern } from "@/components/interactive-grid";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { ASSETS } from "@/constants/assets";
 
 export default function AuthLayout({
   children,
@@ -14,7 +15,7 @@ export default function AuthLayout({
         <div className="absolute inset-0 bg-zinc-900" />
         <div className="relative z-20 flex items-center font-medium">
           <Image
-            src="https://res.cloudinary.com/doi4zvlbi/image/upload/v1781254997/swappr-logo-light_n0kb7m.png"
+            src={ASSETS.LOGO_LIGHT}
             alt="Swappr"
             width={200}
             height={40}

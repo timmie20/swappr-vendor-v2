@@ -17,6 +17,7 @@ import { Button } from "../ui/button";
 import { Icons } from "./icons";
 import Item from "./nav-item";
 import { useLogout } from "@/hooks/use-auth";
+import { ASSETS } from "@/constants/assets";
 
 export default function AppSidebar() {
   const { mutate: logOut } = useLogout();
@@ -25,7 +26,7 @@ export default function AppSidebar() {
       <SidebarHeader className="border-b px-6 py-4">
         <div className="flex items-center space-x-2">
           <Image
-            src="/assets/swappr-logo-dark.png"
+            src={ASSETS.LOGO_DARK}
             alt="Swappr"
             width={120}
             height={40}

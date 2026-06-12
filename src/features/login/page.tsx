@@ -12,6 +12,7 @@ import { FormInput } from "@/components/forms/form-input";
 import { signInSchema } from "@/schemas/auth";
 import { useLogin } from "@/hooks/use-auth";
 import Image from "next/image";
+import { ASSETS } from "@/constants/assets";
 
 type SignInFormValues = z.infer<typeof signInSchema>;
 
@@ -44,7 +45,7 @@ export default function SignInForm() {
     <div className="w-full space-y-6 px-4 md:px-0">
       <div className="flex items-center justify-center lg:hidden">
         <Image
-          src="https://res.cloudinary.com/doi4zvlbi/image/upload/v1781254997/swappr-logo-dark_je8vrs.png"
+          src={ASSETS.LOGO_DARK}
           alt="Swappr"
           width={200}
           height={40}
