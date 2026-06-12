@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/table";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableSkeleton } from "./data-table-skeleton";
+import Image from "next/image";
+import { ASSETS } from "@/constants/assets";
 
 interface DataTableProps<TData> extends React.ComponentProps<"div"> {
   table: TanstackTable<TData>;
@@ -82,7 +84,18 @@ export function DataTable<TData>({
         colSpan={columnCount}
         className="text-muted-foreground h-24 text-center"
       >
-        Something went wrong. Please try again.
+        <div className="mb-2">
+          <Image
+            src={ASSETS.ERROR_STATE}
+            alt="Error state"
+            width={120}
+            height={120}
+            className="mx-auto"
+          />
+        </div>
+        <span className="">Something went wrong.</span>
+        <br />
+        Please try again.
       </TableCell>
     </TableRow>
   );
@@ -93,7 +106,16 @@ export function DataTable<TData>({
         colSpan={columnCount}
         className="text-muted-foreground h-24 text-center"
       >
-        No results.
+        <div className="mb-2">
+          <Image
+            src={ASSETS.EMPTY_STATE}
+            alt="Empty state"
+            width={120}
+            height={120}
+            className="mx-auto"
+          />
+        </div>
+        <span className="">No results.</span>
       </TableCell>
     </TableRow>
   );
