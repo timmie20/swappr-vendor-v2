@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { useLogout } from "@/hooks/use-auth";
+import { useLogout } from "@/hooks/services/use-auth";
 import { Button } from "./ui/button";
 
 type UserSummaryProps = {

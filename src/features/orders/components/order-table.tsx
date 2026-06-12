@@ -1,17 +1,36 @@
-// app/(dashboard)/orders/_components/OrdersTable.tsx  ← Client Component
+// app/(dashboard)/orders/_components/OrdersTable.tsx
 "use client";
 
-import { DataTable } from "@/components/table/data-table";
-import { DataTableToolbar } from "@/components/table/data-table-toolbar";
-import { useOrders } from "@/hooks/use-orders";
 import { useTableState } from "@/hooks/use-table-state";
+import { useFilterState } from "@/hooks/use-filter-state";
+
 import {
+  useReactTable,
   getCoreRowModel,
   getSortedRowModel,
-  useReactTable,
 } from "@tanstack/react-table";
+import { useMemo } from "react";
+import { useOrders } from "@/hooks/services/use-orders";
 import { getOrderColumns } from "../column";
-import { Order } from "../types";
+import { DataTable } from "@/components/table/data-table";
+import { Order, OrderQueryParams, OrderStatus } from "../types";
+import { FilterConfig } from "@/types/data-table";
+import { DataTableToolbar } from "@/components/table/data-table-toolbar";
+
+// Defined outside the component — stable reference, no recreation on render
+const STATUS_FILTER_OPTIONS = Object.values(OrderStatus).map((status) => ({
+  label: status.charAt(0).toUpperCase() + status.slice(1),
+  value: status,
+}));
+
+const ORDER_FILTERS: FilterConfig[] = [
+  {
+    type: "select",
+    key: "status",
+    label: "Status",
+    options: STATUS_FILTER_OPTIONS,
+  },
+];
 
 export function OrdersTable() {
   const {
@@ -23,37 +42,53 @@ export function OrdersTable() {
     queryParams,
   } = useTableState();
 
-  const { data, isLoading, isError } = useOrders(queryParams);
+  const {
+    filterValues,
+    onFilterChange,
+    onResetFilters,
+    hasActiveFilters,
+    activeFilters,
+  } = useFilterState({ status: "" });
 
-  const onView = (order: Order) => {
-    console.log("Update status for order:", order);
-  };
+  const { data, isLoading, isError } = useOrders({
+    ...queryParams,
+    ...(activeFilters as Partial<OrderQueryParams>),
+  });
 
-  const onUpdateStatus = (order: Order) => {
-    console.log("View details for order:", order);
-  };
-
-  const columns = getOrderColumns({ onView, onUpdateStatus });
+  const columns = useMemo(
+    () =>
+      getOrderColumns({
+        onView: (order: Order) => console.log("view", order),
+        onUpdateStatus: (order: Order) => console.log("update status", order),
+      }),
+    [],
+  );
 
   const table = useReactTable({
     data: data?.orders ?? [],
     columns,
     rowCount: data?.total ?? 0,
-    state: tableState, // ← from hook
+    state: tableState,
     manualPagination: true,
     manualSorting: true,
-    onPaginationChange, // ← from hook
-    onSortingChange, // ← from hook
+    onPaginationChange,
+    onSortingChange,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
 
   return (
     <DataTable table={table} isLoading={isLoading} isError={isError}>
-      {/* <DataTableToolbar
+      <DataTableToolbar
+        searchPlaceholder="Search orders by number or customer"
         searchValue={searchValue}
         onSearchChange={onSearchChange}
-      /> */}
+        filters={ORDER_FILTERS}
+        filterValues={filterValues}
+        onFilterChange={onFilterChange}
+        onResetFilters={onResetFilters}
+        hasActiveFilters={hasActiveFilters}
+      />
     </DataTable>
   );
 }

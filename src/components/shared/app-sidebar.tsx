@@ -16,7 +16,7 @@ import Image from "next/image";
 import { Button } from "../ui/button";
 import { Icons } from "./icons";
 import Item from "./nav-item";
-import { useLogout } from "@/hooks/use-auth";
+import { useLogout } from "@/hooks/services/use-auth";
 import { ASSETS } from "@/constants/assets";
 
 export default function AppSidebar() {

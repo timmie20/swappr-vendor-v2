@@ -10,7 +10,7 @@ import Link from "next/link";
 import { Spinner } from "@/components/ui/spinner";
 import { FormInput } from "@/components/forms/form-input";
 import { signInSchema } from "@/schemas/auth";
-import { useLogin } from "@/hooks/use-auth";
+import { useLogin } from "@/hooks/services/use-auth";
 import Image from "next/image";
 import { ASSETS } from "@/constants/assets";
 

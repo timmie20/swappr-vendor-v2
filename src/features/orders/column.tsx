@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { MoreHorizontal } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { type Order, OrderStatus, VENDOR_UPDATABLE_STATUSES } from "./types";
+import { Icons } from "@/components/shared/icons";
 
 // Formatted for display — keeps rendering logic out of the column cell
 function formatAmount(amount: string): string {
@@ -71,6 +72,12 @@ export function getOrderColumns({
           {row.getValue("order_number")}
         </span>
       ),
+      meta: {
+        label: "Search",
+        placeholder: "Search orders by number or customer",
+        variant: "text",
+      },
+      enableColumnFilter: true,
     },
     {
       id: "buyer",
@@ -95,6 +102,15 @@ export function getOrderColumns({
         const { label, variant } = STATUS_BADGE_MAP[status];
         return <Badge variant={variant}>{label}</Badge>;
       },
+      enableColumnFilter: true,
+      meta: {
+        variant: "multiSelect",
+        label: "Status",
+        options: Object.entries(STATUS_BADGE_MAP).map(([value, { label }]) => ({
+          value,
+          label,
+        })),
+      },
     },
     {
       accessorKey: "payment_status",
@@ -117,7 +133,7 @@ export function getOrderColumns({
       accessorKey: "created_at",
       header: "Placed",
       cell: ({ row }) =>
-        format(new Date(row.getValue("created_at")), "dd MMM yyyy"),
+        format(new Date(row.getValue("created_at")), "dd MMM yyyy, h:mm:a"),
     },
     {
       accessorKey: "expires_at",
@@ -125,7 +141,7 @@ export function getOrderColumns({
       cell: ({ row }) => {
         const value = row.getValue<string | null>("expires_at");
         if (!value) return <span className="text-muted-foreground">—</span>;
-        return format(new Date(value), "dd MMM yyyy, HH:mm");
+        return format(new Date(value), "dd MMM yyyy, h:mm:a");
       },
     },
     {
@@ -145,18 +161,18 @@ export function getOrderColumns({
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="size-8">
                 <span className="sr-only">Open actions</span>
-                <MoreHorizontal className="size-4" />
+                <MoreVertical className="size-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onView(order)}>
-                View order
+                <Icons.eye /> View order
               </DropdownMenuItem>
               {canUpdateStatus && (
                 <DropdownMenuItem onClick={() => onUpdateStatus(order)}>
-                  Update status
+                  <Icons.edit /> Update status
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
