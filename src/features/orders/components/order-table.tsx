@@ -50,7 +50,7 @@ export function OrdersTable() {
     activeFilters,
   } = useFilterState({ status: "" });
 
-  const { data, isLoading, isError } = useOrders({
+  const { data, isLoading, isError, isFetching } = useOrders({
     ...queryParams,
     ...(activeFilters as Partial<OrderQueryParams>),
   });
@@ -78,7 +78,12 @@ export function OrdersTable() {
   });
 
   return (
-    <DataTable table={table} isLoading={isLoading} isError={isError}>
+    <DataTable
+      table={table}
+      isLoading={isLoading}
+      isError={isError}
+      isFetching={isFetching}
+    >
       <DataTableToolbar
         searchPlaceholder="Search orders by number or customer"
         searchValue={searchValue}

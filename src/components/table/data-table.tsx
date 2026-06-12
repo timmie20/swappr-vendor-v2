@@ -14,6 +14,7 @@ import { DataTablePagination } from "./data-table-pagination";
 import { DataTableSkeleton } from "./data-table-skeleton";
 import Image from "next/image";
 import { ASSETS } from "@/constants/assets";
+import { Icons } from "../shared/icons";
 
 interface DataTableProps<TData> extends React.ComponentProps<"div"> {
   table: TanstackTable<TData>;
@@ -30,6 +31,8 @@ interface DataTableProps<TData> extends React.ComponentProps<"div"> {
    * `loadingState` override is provided.
    */
   isLoading?: boolean;
+
+  isFetching?: boolean;
 
   /**
    * Pass `true` when your query is in an error state.
@@ -58,6 +61,7 @@ export function DataTable<TData>({
   table,
   actionBar,
   isLoading = false,
+  isFetching = false,
   isError = false,
   loadingState,
   errorState,
@@ -157,6 +161,11 @@ export function DataTable<TData>({
         </div>
       ) : (
         <div className="min-h-0 flex-1 overflow-hidden rounded-lg border">
+          {isFetching && (
+            <div className="bg-background/50 absolute inset-0 z-50 flex items-center justify-center backdrop-blur-[1px]">
+              <Icons.spinner className="text-muted-foreground animate-spin" />
+            </div>
+          )}
           <ScrollArea className="h-full w-full">
             <Table>
               <TableHeader className="bg-muted sticky top-0 z-10">
