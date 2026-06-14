@@ -15,5 +15,5 @@ export const orderQueryKeys = {
   details: () => [...orderQueryKeys.all(), "detail"] as const,
 
   // Matches one specific order detail
-  detail: (id: string) => [...orderQueryKeys.details(), id] as const,
+  detail: (number: string) => [...orderQueryKeys.details(), number] as const,
 } as const;

@@ -1,7 +1,12 @@
 // import { PaginatedOrdersSchema } from "./schemas";
 
-import { OrderQueryParams, PaginatedOrders } from "@/features/orders/types";
+import {
+  OrderDetails,
+  OrderQueryParams,
+  PaginatedOrders,
+} from "@/features/orders/types";
 import { serverFetch } from "@/lib/api/server";
+import { ApiResponse } from "@/types";
 
 export async function fetchOrders(
   params?: OrderQueryParams,
@@ -31,6 +36,13 @@ export async function fetchOrders(
         )
       : undefined,
   });
+  return res;
+}
+
+export async function fetchOrderDetails(
+  number: string,
+): Promise<ApiResponse<OrderDetails>> {
+  const res = await serverFetch<ApiResponse<OrderDetails>>(`/orders/${number}`);
   return res;
 }
 

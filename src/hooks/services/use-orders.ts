@@ -1,6 +1,11 @@
 import { orderQueryKeys } from "@/features/orders/query-keys";
-import { OrderQueryParams, PaginatedOrders } from "@/features/orders/types";
+import {
+  OrderDetails,
+  OrderQueryParams,
+  PaginatedOrders,
+} from "@/features/orders/types";
 import { orderEndpoint } from "@/services/orders";
+import { ApiResponse } from "@/types";
 import {
   useMutation,
   useQuery,
@@ -25,15 +30,13 @@ export function useOrders(params: OrderQueryParams) {
   });
 }
 
-// export function useOrder(id: string) {
-//   return useQuery({
-//     queryKey: ["order", id],
-//     queryFn: async (): Promise<{ order: OrderDetails }> => {
-//       return await fetchOrderDetails({ id });
-//     },
-//     enabled: !!id,
-//   });
-// }
+export function useOrderDetails(number: string) {
+  return useQuery({
+    queryKey: orderQueryKeys.detail(number),
+    queryFn: () => orderEndpoint.getById(number),
+    enabled: !!number,
+  });
+}
 
 // export function useUpdateOrderStatus() {
 //   const queryClient = useQueryClient();

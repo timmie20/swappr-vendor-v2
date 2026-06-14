@@ -15,6 +15,7 @@ import {
 
 import { type Order, OrderStatus, VENDOR_UPDATABLE_STATUSES } from "./types";
 import { Icons } from "@/components/shared/icons";
+import { PAYMENT_BADGE_MAP, STATUS_BADGE_MAP } from "@/constants/order";
 
 // Formatted for display — keeps rendering logic out of the column cell
 function formatAmount(amount: string): string {
@@ -25,36 +26,10 @@ function formatAmount(amount: string): string {
   }).format(Number(amount));
 }
 
-const STATUS_BADGE_MAP: Record<
-  OrderStatus,
-  {
-    label: string;
-    variant: "default" | "secondary" | "destructive" | "outline";
-  }
-> = {
-  [OrderStatus.PENDING]: { label: "Pending", variant: "secondary" },
-  [OrderStatus.CONFIRMED]: { label: "Confirmed", variant: "default" },
-  [OrderStatus.PROCESSING]: { label: "Processing", variant: "default" },
-  [OrderStatus.SHIPPED]: { label: "Shipped", variant: "default" },
-  [OrderStatus.DELIVERED]: { label: "Delivered", variant: "default" },
-  [OrderStatus.CANCELLED]: { label: "Cancelled", variant: "destructive" },
-};
-
-const PAYMENT_BADGE_MAP: Record<
-  string,
-  {
-    label: string;
-    variant: "default" | "secondary" | "destructive" | "outline";
-  }
-> = {
-  paid: { label: "Paid", variant: "default" },
-  unpaid: { label: "Unpaid", variant: "secondary" },
-};
-
 // Columns are a plain function — no hooks, no side effects.
 // Actions are injected as callbacks so this file stays pure.
 interface GetOrderColumnsOptions {
-  onView: (order: Order) => void;
+  onView: (orderNumber: string) => void;
   onUpdateStatus: (order: Order) => void;
 }
 
@@ -65,7 +40,7 @@ export function getOrderColumns({
   return [
     {
       accessorKey: "order_number",
-      header: "Order",
+      header: "Order Number",
 
       cell: ({ row }) => (
         <span className="font-mono text-sm font-medium">
@@ -167,7 +142,7 @@ export function getOrderColumns({
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onView(order)}>
+              <DropdownMenuItem onClick={() => onView(order.order_number)}>
                 <Icons.eye /> View order
               </DropdownMenuItem>
               {canUpdateStatus && (

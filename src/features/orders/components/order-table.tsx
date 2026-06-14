@@ -1,4 +1,3 @@
-// app/(dashboard)/orders/_components/OrdersTable.tsx
 "use client";
 
 import { useTableState } from "@/hooks/use-table-state";
@@ -16,6 +15,7 @@ import { DataTable } from "@/components/table/data-table";
 import { Order, OrderQueryParams, OrderStatus } from "../types";
 import { FilterConfig } from "@/types/data-table";
 import { DataTableToolbar } from "@/components/table/data-table-toolbar";
+import { useRouter } from "next/navigation";
 
 // Defined outside the component — stable reference, no recreation on render
 const STATUS_FILTER_OPTIONS = Object.values(OrderStatus).map((status) => ({
@@ -50,15 +50,21 @@ export function OrdersTable() {
     activeFilters,
   } = useFilterState({ status: "" });
 
+  const route = useRouter();
+
   const { data, isLoading, isError, isFetching } = useOrders({
     ...queryParams,
     ...(activeFilters as Partial<OrderQueryParams>),
   });
 
+  const handleOnView = (orderNumber: string) => {
+    route.push(`/orders/${orderNumber}`);
+  };
+
   const columns = useMemo(
     () =>
       getOrderColumns({
-        onView: (order: Order) => console.log("view", order),
+        onView: (orderNumber: string) => handleOnView(orderNumber),
         onUpdateStatus: (order: Order) => console.log("update status", order),
       }),
     [],
