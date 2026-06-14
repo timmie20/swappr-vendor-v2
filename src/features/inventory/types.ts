@@ -1,8 +1,9 @@
-export type ProductStatus =
-  | "selling"
-  | "out_of_stock"
-  | "published"
-  | "unpublished";
+import { TableQueryParams } from "@/hooks/use-table-state";
+
+export enum ProductStatus {
+  SELLING = "selling",
+  OUT_OF_STOCK = "out_of_stock",
+}
 
 export enum ProductMode {
   SALE = "sale",
@@ -42,23 +43,17 @@ export type Product = {
   subcategory: { id: string; name: string };
 };
 
-// export type ProductsQueryParams = {
-//   page?: number;
-//   limit?: number;
-//   search?: string;
-//   category?: string;
-//   price?: string;
-//   is_active?: string;
-//   status?: string;
-//   sort_order?: string;
-// };
+export type PaginatedProducts = {
+  products: Product[];
+  total: number;
+  page: number;
+  limit: number;
+};
 
-// export type ProductsApiResponse = {
-//   products: Product[];
-//   total: number;
-//   page: number;
-//   limit: number;
-// };
+export type ProductQueryParams = TableQueryParams & {
+  category?: string;
+  status?: ProductStatus;
+};
 
 // export type ProductsResponse = {
 //   data: Product[];

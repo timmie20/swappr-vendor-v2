@@ -1,18 +1,14 @@
+import { BadgeProps } from "@/components/ui/badge";
+import { ProductStatus } from "@/features/inventory/types";
 import { OrderStatus } from "@/features/orders/types";
+
+type BadgeVariantProps = BadgeProps["variant"];
 
 export const STATUS_BADGE_MAP: Record<
   OrderStatus,
   {
     label: string;
-    variant:
-      | "default"
-      | "secondary"
-      | "destructive"
-      | "outline"
-      | "paid"
-      | "unpaid"
-      | "processing"
-      | "shipped";
+    variant: BadgeVariantProps;
   }
 > = {
   [OrderStatus.PENDING]: { label: "Pending", variant: "secondary" },
@@ -27,16 +23,19 @@ export const PAYMENT_BADGE_MAP: Record<
   string,
   {
     label: string;
-    variant:
-      | "default"
-      | "secondary"
-      | "destructive"
-      | "outline"
-      | "paid"
-      | "unpaid"
-      | "refunded";
+    variant: BadgeVariantProps;
   }
 > = {
   paid: { label: "Paid", variant: "paid" },
   unpaid: { label: "Unpaid", variant: "unpaid" },
+};
+
+export const PRODUCT_BADGE_MAP: Record<
+  ProductStatus,
+  { label: string; variant: BadgeVariantProps }
+> = {
+  selling: { label: "Selling", variant: "default" },
+  out_of_stock: { label: "Out of Stock", variant: "destructive" },
+  published: { label: "Published", variant: "paid" },
+  unpublished: { label: "Unpublished", variant: "secondary" },
 };

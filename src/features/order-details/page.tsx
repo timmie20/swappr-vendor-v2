@@ -17,7 +17,7 @@ export default function OrderDetailsPage({
     <React.Fragment>
       <AppBreadcrumb
         items={[
-          { label: "Dashboard", href: "/dashboard" },
+          { label: "Overview", href: "/overview" },
           { label: "Orders", href: "/orders" },
           { label: `Order #${orderNumber}` },
         ]}

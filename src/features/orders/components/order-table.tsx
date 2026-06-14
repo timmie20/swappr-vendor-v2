@@ -57,14 +57,14 @@ export function OrdersTable() {
     ...(activeFilters as Partial<OrderQueryParams>),
   });
 
-  const handleOnView = (orderNumber: string) => {
-    route.push(`/orders/${orderNumber}`);
-  };
+  // const handleOnView = (orderNumber: string) => {
+  //   route.push(`/orders/${orderNumber}`);
+  // };
 
   const columns = useMemo(
     () =>
       getOrderColumns({
-        onView: (orderNumber: string) => handleOnView(orderNumber),
+        // onView: (orderNumber: string) => handleOnView(orderNumber),
         onUpdateStatus: (order: Order) => console.log("update status", order),
       }),
     [],

@@ -47,7 +47,7 @@ import {
 } from "../orders/types";
 
 import { formatCurrency, formatDate, getInitials } from "@/helpers";
-import { PAYMENT_BADGE_MAP, STATUS_BADGE_MAP } from "@/constants/order";
+import { PAYMENT_BADGE_MAP, STATUS_BADGE_MAP } from "@/constants/badge";
 
 function OrderStatusBadge({ status }: { status: OrderStatus }) {
   const { label, variant } = STATUS_BADGE_MAP[status];

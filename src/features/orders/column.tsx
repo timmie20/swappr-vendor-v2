@@ -15,18 +15,19 @@ import {
 
 import { type Order, OrderStatus, VENDOR_UPDATABLE_STATUSES } from "./types";
 import { Icons } from "@/components/shared/icons";
-import { PAYMENT_BADGE_MAP, STATUS_BADGE_MAP } from "@/constants/order";
+import { PAYMENT_BADGE_MAP, STATUS_BADGE_MAP } from "@/constants/badge";
 import { formatCurrency } from "@/helpers";
+import Link from "next/link";
 
 // Columns are a plain function — no hooks, no side effects.
 // Actions are injected as callbacks so this file stays pure.
 interface GetOrderColumnsOptions {
-  onView: (orderNumber: string) => void;
+  // onView: (orderNumber: string) => void;
   onUpdateStatus: (order: Order) => void;
 }
 
 export function getOrderColumns({
-  onView,
+  // onView,
   onUpdateStatus,
 }: GetOrderColumnsOptions): ColumnDef<Order>[] {
   return [
@@ -86,7 +87,7 @@ export function getOrderColumns({
         const status = row.getValue<string>("payment_status");
         const { label, variant } = PAYMENT_BADGE_MAP[status] ?? {
           label: status,
-          variant: "outline" as const,
+          variant: "outline",
         };
         return <Badge variant={variant}>{label}</Badge>;
       },
@@ -134,8 +135,10 @@ export function getOrderColumns({
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onView(order.order_number)}>
-                <Icons.eye /> View order
+              <DropdownMenuItem asChild>
+                <Link href={`/orders/${order.order_number}`}>
+                  <Icons.eye /> View Order
+                </Link>
               </DropdownMenuItem>
               {canUpdateStatus && (
                 <DropdownMenuItem onClick={() => onUpdateStatus(order)}>
