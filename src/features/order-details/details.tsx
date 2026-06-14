@@ -46,7 +46,7 @@ import {
   VENDOR_UPDATABLE_STATUSES,
 } from "../orders/types";
 
-import { formatCurrency, formatDate, getInitials } from "@/helpers";
+import { formatCurrency, formatDate, getInitials } from "@/helpers/format";
 import { PAYMENT_BADGE_MAP, STATUS_BADGE_MAP } from "@/constants/badge";
 
 function OrderStatusBadge({ status }: { status: OrderStatus }) {

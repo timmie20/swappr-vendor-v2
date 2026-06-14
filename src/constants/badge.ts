@@ -36,6 +36,4 @@ export const PRODUCT_BADGE_MAP: Record<
 > = {
   selling: { label: "Selling", variant: "default" },
   out_of_stock: { label: "Out of Stock", variant: "destructive" },
-  published: { label: "Published", variant: "paid" },
-  unpublished: { label: "Unpublished", variant: "secondary" },
 };

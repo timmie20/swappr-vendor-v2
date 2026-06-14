@@ -22,3 +22,14 @@ export const getInitials = (name: string) =>
     .join("")
     .toUpperCase()
     .slice(0, 2);
+
+export function formatToOptions<T extends Record<string, any>>(
+  data: T[],
+  keys: [keyof T, keyof T],
+): { value: any; label: any }[] {
+  const [valueKey, labelKey] = keys;
+  return data.map((item) => ({
+    value: item[valueKey],
+    label: item[labelKey],
+  }));
+}

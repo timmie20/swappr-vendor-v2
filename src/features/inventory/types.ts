@@ -51,7 +51,7 @@ export type PaginatedProducts = {
 };
 
 export type ProductQueryParams = TableQueryParams & {
-  category?: string;
+  category_ids?: string;
   status?: ProductStatus;
 };
 

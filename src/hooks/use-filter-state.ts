@@ -1,14 +1,19 @@
 // src/hooks/use-filter-state.ts
-import { useQueryStates, parseAsString } from "nuqs";
+import { useQueryStates, parseAsString, parseAsArrayOf } from "nuqs";
 import { useCallback, useMemo } from "react";
 
-type FilterShape = Record<string, string>;
+// src/hooks/use-filter-state.ts
+type FilterShape = Record<string, string | string[]>;
 
 export function useFilterState<T extends FilterShape>(initialFilters: T) {
   const parsers = Object.fromEntries(
     Object.entries(initialFilters).map(([key, defaultValue]) => [
       key,
-      parseAsString.withDefault(defaultValue),
+      // Arrays stored as comma-separated strings in the URL
+      // e.g. category_ids=uuid-1,uuid-2,uuid-3
+      parseAsString.withDefault(
+        Array.isArray(defaultValue) ? defaultValue.join(",") : defaultValue,
+      ),
     ]),
   );
 
@@ -18,8 +23,11 @@ export function useFilterState<T extends FilterShape>(initialFilters: T) {
   );
 
   const onFilterChange = useCallback(
-    (key: string, value: string | undefined) => {
-      setFilterParams((prev) => ({ ...prev, [key]: value ?? null }));
+    (key: string, value: string | string[] | undefined) => {
+      const serialized = Array.isArray(value)
+        ? value.join(",") // [uuid-1, uuid-2] → "uuid-1,uuid-2"
+        : (value ?? null);
+      setFilterParams((prev) => ({ ...prev, [key]: serialized }));
     },
     [setFilterParams],
   );

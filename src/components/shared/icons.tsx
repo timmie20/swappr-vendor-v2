@@ -62,6 +62,7 @@ import {
   IconCopy,
   IconEye,
   IconEyeOff,
+  IconCirclePlus,
 } from "@tabler/icons-react";
 
 export type Icon = React.ComponentType<IconProps>;
@@ -129,4 +130,5 @@ export const Icons = {
   copy: IconCopy,
   eye: IconEye,
   eyeOff: IconEyeOff,
+  circlePlus: IconCirclePlus,
 };

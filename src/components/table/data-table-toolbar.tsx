@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Icons } from "../shared/icons";
 import { FilterConfig } from "@/types/data-table";
+import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 
 // ---- Props --------------------------------------------------------------
 
@@ -26,7 +27,7 @@ interface DataTableToolbarProps {
   // Filters
   filters?: FilterConfig[];
   filterValues: Record<string, string>;
-  onFilterChange: (key: string, value: string | undefined) => void;
+  onFilterChange: (key: string, value: string | string[] | undefined) => void;
   onResetFilters: () => void;
   hasActiveFilters: boolean;
 }
@@ -87,7 +88,26 @@ export function DataTableToolbar({
             );
           }
 
-          // multi-select — placeholder for when you add it
+          // In the toolbar, multi-select branch
+          if (filter.type === "multi-select") {
+            const raw = (filterValues[filter.key] as string) ?? "";
+            const selectedValues = raw ? raw.split(",") : [];
+
+            return (
+              <DataTableFacetedFilter
+                key={filter.key}
+                label={filter.label}
+                options={filter.options}
+                selectedValues={selectedValues}
+                onChange={(values) =>
+                  onFilterChange(
+                    filter.key,
+                    values.length > 0 ? values : undefined,
+                  )
+                }
+              />
+            );
+          }
           return null;
         })}
 

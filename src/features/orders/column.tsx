@@ -16,7 +16,7 @@ import {
 import { type Order, OrderStatus, VENDOR_UPDATABLE_STATUSES } from "./types";
 import { Icons } from "@/components/shared/icons";
 import { PAYMENT_BADGE_MAP, STATUS_BADGE_MAP } from "@/constants/badge";
-import { formatCurrency } from "@/helpers";
+import { formatCurrency } from "@/helpers/format";
 import Link from "next/link";
 
 // Columns are a plain function — no hooks, no side effects.

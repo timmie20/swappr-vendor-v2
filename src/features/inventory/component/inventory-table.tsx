@@ -14,27 +14,14 @@ import {
 import { DataTable } from "@/components/table/data-table";
 import { DataTableToolbar } from "@/components/table/data-table-toolbar";
 import { FilterConfig } from "@/types/data-table";
+import { useCategories } from "@/hooks/services/use-categories";
+import { formatToOptions } from "@/helpers/format";
 
-// Defined outside the component — stable reference, no recreation on render
+// Static — no data dependency, safe outside the component
 const STATUS_FILTER_OPTIONS = Object.values(ProductStatus).map((status) => ({
   label: status.charAt(0).toUpperCase() + status.slice(1),
   value: status,
 }));
-
-const ORDER_FILTERS: FilterConfig[] = [
-  {
-    type: "select",
-    key: "status",
-    label: "Status",
-    options: STATUS_FILTER_OPTIONS,
-  },
-  {
-    type: "multi-select",
-    key: "category",
-    label: "Category",
-    options: [],
-  },
-];
 
 export default function InventoryTable() {
   const {
@@ -52,12 +39,40 @@ export default function InventoryTable() {
     onResetFilters,
     hasActiveFilters,
     activeFilters,
-  } = useFilterState({ status: "", category: "" });
+  } = useFilterState({ status: "", category_ids: "" });
 
   const { data, isLoading, isError, isFetching } = useProducts({
     ...queryParams,
     ...(activeFilters as Partial<ProductQueryParams>),
   });
+
+  // Cache is already warm from server prefetch — no loading state needed here
+  const { data: categoriesData } = useCategories();
+
+  // Derived from async data — must live inside the component
+  const categoryFilterOptions = useMemo(
+    () => formatToOptions(categoriesData?.categories ?? [], ["id", "name"]),
+    [categoriesData?.categories],
+  );
+
+  // Rebuilt when categoryFilterOptions resolves, stable otherwise
+  const PRODUCT_FILTERS: FilterConfig[] = useMemo(
+    () => [
+      {
+        type: "select",
+        key: "status",
+        label: "Status",
+        options: STATUS_FILTER_OPTIONS,
+      },
+      {
+        type: "multi-select",
+        key: "category_ids",
+        label: "Category",
+        options: categoryFilterOptions,
+      },
+    ],
+    [categoryFilterOptions],
+  );
 
   const columns = useMemo(
     () =>
@@ -93,7 +108,7 @@ export default function InventoryTable() {
         searchPlaceholder="Search products"
         searchValue={searchValue}
         onSearchChange={onSearchChange}
-        filters={ORDER_FILTERS}
+        filters={PRODUCT_FILTERS}
         filterValues={filterValues}
         onFilterChange={onFilterChange}
         onResetFilters={onResetFilters}

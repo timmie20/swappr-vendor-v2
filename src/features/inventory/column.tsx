@@ -16,7 +16,7 @@ import {
 import { MoreHorizontal } from "lucide-react";
 
 import type { Product, ProductStatus } from "./types";
-import { formatCurrency } from "@/helpers";
+import { formatCurrency } from "@/helpers/format";
 import { PRODUCT_BADGE_MAP } from "@/constants/badge";
 import { DataTableSwitch } from "@/components/table/data-table-switch";
 import { Icons } from "@/components/shared/icons";
