@@ -47,120 +47,20 @@ import {
 } from "../orders/types";
 
 import { formatCurrency, formatDate, getInitials } from "@/helpers";
-
-// ─── Badge Variants ───────────────────────────────────────────────────────────
+import { PAYMENT_BADGE_MAP, STATUS_BADGE_MAP } from "@/constants/order";
 
 function OrderStatusBadge({ status }: { status: OrderStatus }) {
-  const config: Record<OrderStatus, { label: string; className: string }> = {
-    pending: {
-      label: "Pending",
-      className: "bg-amber-50 text-amber-700 border-amber-200",
-    },
-    confirmed: {
-      label: "Confirmed",
-      className: "bg-blue-50 text-blue-700 border-blue-200",
-    },
-    processing: {
-      label: "Processing",
-      className: "bg-violet-50 text-violet-700 border-violet-200",
-    },
-    shipped: {
-      label: "Shipped",
-      className: "bg-sky-50 text-sky-700 border-sky-200",
-    },
-    delivered: {
-      label: "Delivered",
-      className: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    },
-    cancelled: {
-      label: "Cancelled",
-      className: "bg-red-50 text-red-700 border-red-200",
-    },
-    // refunded: {
-    //   label: "Refunded",
-    //   className: "bg-gray-100 text-gray-600 border-gray-200",
-    // },
-  };
-  const { label, className } = config[status];
-  return (
-    <Badge variant="outline" className={`text-xs font-medium ${className}`}>
-      {label}
-    </Badge>
-  );
+  const { label, variant } = STATUS_BADGE_MAP[status];
+  return <Badge variant={variant}>{label}</Badge>;
 }
-
-// function OrderTypeBadge({ type }: { type: OrderType }) {
-//   const config: Record<OrderType, { label: string; className: string }> = {
-//     purchase: {
-//       label: "Purchase",
-//       className: "bg-gray-100 text-gray-600 border-gray-200",
-//     },
-//     swap: {
-//       label: "Swap",
-//       className: "bg-teal-50 text-teal-700 border-teal-200",
-//     },
-//     sale_swap: {
-//       label: "Sale + Swap",
-//       className: "bg-teal-50 text-teal-700 border-teal-200",
-//     },
-//   };
-//   const { label, className } = config[type];
-//   return (
-//     <Badge variant="outline" className={`text-xs font-medium ${className}`}>
-//       {label}
-//     </Badge>
-//   );
-// }
 
 function PaymentStatusBadge({ status }: { status: PaymentStatus }) {
-  const config: Record<PaymentStatus, { label: string; className: string }> = {
-    unpaid: {
-      label: "Unpaid",
-      className: "bg-amber-50 text-amber-700 border-amber-200",
-    },
-    paid: {
-      label: "Paid",
-      className: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    },
-    failed: {
-      label: "Failed",
-      className: "bg-red-50 text-red-700 border-red-200",
-    },
-    refunded: {
-      label: "Refunded",
-      className: "bg-gray-100 text-gray-600 border-gray-200",
-    },
+  const { label, variant } = PAYMENT_BADGE_MAP[status] ?? {
+    label: status,
+    variant: "outline" as const,
   };
-  const { label, className } = config[status];
-  return (
-    <Badge variant="outline" className={`text-xs font-medium ${className}`}>
-      {label}
-    </Badge>
-  );
+  return <Badge variant={variant}>{label}</Badge>;
 }
-
-// function OrderTypeBadge({ type }: { type: OrderType }) {
-//   const config: Record<OrderType, { label: string; className: string }> = {
-//     purchase: {
-//       label: "Purchase",
-//       className: "bg-gray-100 text-gray-600 border-gray-200",
-//     },
-//     swap: {
-//       label: "Swap",
-//       className: "bg-teal-50 text-teal-700 border-teal-200",
-//     },
-//     sale_swap: {
-//       label: "Sale + Swap",
-//       className: "bg-teal-50 text-teal-700 border-teal-200",
-//     },
-//   };
-//   const { label, className } = config[type];
-//   return (
-//     <Badge variant="outline" className={`text-xs font-medium ${className}`}>
-//       {label}
-//     </Badge>
-//   );
-// }
 
 // ─── Section Wrapper ──────────────────────────────────────────────────────────
 

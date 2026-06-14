@@ -16,15 +16,7 @@ import {
 import { type Order, OrderStatus, VENDOR_UPDATABLE_STATUSES } from "./types";
 import { Icons } from "@/components/shared/icons";
 import { PAYMENT_BADGE_MAP, STATUS_BADGE_MAP } from "@/constants/order";
-
-// Formatted for display — keeps rendering logic out of the column cell
-function formatAmount(amount: string): string {
-  return new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: "NGN",
-    minimumFractionDigits: 0,
-  }).format(Number(amount));
-}
+import { formatCurrency } from "@/helpers";
 
 // Columns are a plain function — no hooks, no side effects.
 // Actions are injected as callbacks so this file stays pure.
@@ -102,7 +94,7 @@ export function getOrderColumns({
     {
       accessorKey: "total_amount",
       header: "Amount",
-      cell: ({ row }) => formatAmount(row.getValue("total_amount")),
+      cell: ({ row }) => formatCurrency(row.getValue("total_amount")),
     },
     {
       accessorKey: "created_at",
