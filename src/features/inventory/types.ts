@@ -55,6 +55,15 @@ export type ProductQueryParams = TableQueryParams & {
   status?: ProductStatus;
 };
 
+export interface BulkTogglePublishPayload {
+  ids: string[];
+  is_active: boolean;
+}
+
+export interface BulkDeletePayload {
+  ids: string[];
+}
+
 // export type ProductsResponse = {
 //   data: Product[];
 //   pagination: Pagination;

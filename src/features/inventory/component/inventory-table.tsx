@@ -16,6 +16,7 @@ import { DataTableToolbar } from "@/components/table/data-table-toolbar";
 import { FilterConfig } from "@/types/data-table";
 import { useCategories } from "@/hooks/services/use-categories";
 import { formatToOptions } from "@/helpers/format";
+import { InventoryBulkActionBar } from "./inventory-bulk-action";
 
 // Static — no data dependency, safe outside the component
 const STATUS_FILTER_OPTIONS = Object.values(ProductStatus).map((status) => ({
@@ -103,6 +104,7 @@ export default function InventoryTable() {
       isLoading={isLoading}
       isError={isError}
       isFetching={isFetching}
+      actionBar={<InventoryBulkActionBar table={table} />}
     >
       <DataTableToolbar
         searchPlaceholder="Search products"
