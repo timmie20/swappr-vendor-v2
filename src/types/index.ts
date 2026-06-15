@@ -9,9 +9,9 @@ export interface ApiResponse<T> {
 }
 
 export interface ApiReject {
-  message: string;
-  statusCode: number;
+  message?: string | string[];
   error?: string;
+  statusCode?: number;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-empty-object-type

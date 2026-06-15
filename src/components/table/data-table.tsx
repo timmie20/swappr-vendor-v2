@@ -15,6 +15,7 @@ import { DataTableSkeleton } from "./data-table-skeleton";
 import Image from "next/image";
 import { ASSETS } from "@/constants/assets";
 import { Icons } from "../shared/icons";
+import { Spinner } from "../ui/spinner";
 
 interface DataTableProps<TData> extends React.ComponentProps<"div"> {
   table: TanstackTable<TData>;
@@ -163,7 +164,8 @@ export function DataTable<TData>({
         <div className="min-h-0 flex-1 overflow-hidden rounded-lg border">
           {isFetching && (
             <div className="bg-background/50 absolute inset-0 z-50 flex items-center justify-center backdrop-blur-[1px]">
-              <Icons.spinner className="text-muted-foreground animate-spin" />
+              {/* <Icons.spinner className="text-muted-foreground animate-spin" /> */}
+              <Spinner className="size-6" />
             </div>
           )}
           <ScrollArea className="h-full w-full">

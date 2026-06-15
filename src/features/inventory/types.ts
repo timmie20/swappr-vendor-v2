@@ -64,23 +64,35 @@ export interface BulkDeletePayload {
   ids: string[];
 }
 
-// export type ProductsResponse = {
-//   data: Product[];
-//   pagination: Pagination;
-// };
+export interface CreateProductPayload {
+  name: string;
+  brand_id: string;
+  category_id: string;
+  subcategory_id?: string;
 
-// export type ProductFormData = Omit<
-//   Product,
-//   | "brand"
-//   | "category"
-//   | "total_stock"
-//   | "is_swappable"
-//   | "is_active"
-//   | "created_at"
-//   | "updated_at"
-//   | "deleted_at"
-//   | "images"
-// > & {
-//   brand_id: string;
-//   category_id: string;
-// };
+  condition: string;
+
+  mode: ProductMode;
+
+  description: string;
+
+  total_stock?: number;
+
+  base_price?: number;
+
+  carrier_status?: string;
+
+  images: string[];
+
+  specifications: {
+    key: string;
+    value: string;
+  }[];
+
+  variants: {
+    color: string;
+    storage: number;
+    price: number;
+    stock_quantity: number;
+  }[];
+}

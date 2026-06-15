@@ -25,7 +25,7 @@ export default async function InventoryPage() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="space-y-6">
+      <div className="space-y-4">
         <Typography variant="h2" className="text-left">
           Manage Inventory
         </Typography>

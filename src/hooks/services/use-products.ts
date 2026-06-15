@@ -8,17 +8,42 @@ import {
 import {
   BulkDeletePayload,
   BulkTogglePublishPayload,
+  CreateProductPayload,
   ProductQueryParams,
 } from "@/features/inventory/types";
 import { productQueryKeys } from "@/features/inventory/query-keys";
 import { productEndpoints } from "@/services/products";
 import { toast } from "sonner";
+import { ProductFormData } from "@/schemas/product";
+import { getErrorMessage } from "@/helpers/get-error-message";
 
 export function useProducts(params: ProductQueryParams) {
   return useQuery({
     queryKey: productQueryKeys.list(params),
     queryFn: () => productEndpoints.getAll(params),
     placeholderData: keepPreviousData,
+  });
+}
+
+export function useCreateProduct() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateProductPayload) =>
+      productEndpoints.add(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productQueryKeys.all() });
+    },
+    onError: (error) => {
+      const message = getErrorMessage(error);
+
+      console.error("Failed to create product:", message);
+
+      toast.error("Failed to create product", {
+        description: message,
+      });
+      return;
+    },
   });
 }
 

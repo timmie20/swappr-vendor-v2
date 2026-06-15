@@ -17,6 +17,10 @@ import { FilterConfig } from "@/types/data-table";
 import { useCategories } from "@/hooks/services/use-categories";
 import { formatToOptions } from "@/helpers/format";
 import { InventoryBulkActionBar } from "./inventory-bulk-action";
+import { Button } from "@/components/ui/button";
+import ResubaleSheet from "@/components/resuable-sheet";
+import AddProductForm from "./product-form";
+import { Icons } from "@/components/shared/icons";
 
 // Static — no data dependency, safe outside the component
 const STATUS_FILTER_OPTIONS = Object.values(ProductStatus).map((status) => ({
@@ -25,6 +29,8 @@ const STATUS_FILTER_OPTIONS = Object.values(ProductStatus).map((status) => ({
 }));
 
 export default function InventoryTable() {
+  const [isFormOpen, setIsFormOpen] = React.useState(false);
+
   const {
     tableState,
     onPaginationChange,
@@ -99,23 +105,41 @@ export default function InventoryTable() {
   });
 
   return (
-    <DataTable
-      table={table}
-      isLoading={isLoading}
-      isError={isError}
-      isFetching={isFetching}
-      actionBar={<InventoryBulkActionBar table={table} />}
-    >
-      <DataTableToolbar
-        searchPlaceholder="Search products"
-        searchValue={searchValue}
-        onSearchChange={onSearchChange}
-        filters={PRODUCT_FILTERS}
-        filterValues={filterValues}
-        onFilterChange={onFilterChange}
-        onResetFilters={onResetFilters}
-        hasActiveFilters={hasActiveFilters}
-      />
-    </DataTable>
+    <>
+      <div className="flex items-center justify-end">
+        <ResubaleSheet
+          title="Add New Product"
+          description="Fill in the details to add a new product to your inventory."
+          trigger={
+            <Button className="cursor-pointer">
+              <Icons.add />
+              Add Product
+            </Button>
+          }
+          open={isFormOpen}
+          onOpenChange={setIsFormOpen}
+        >
+          <AddProductForm onSuccessAction={() => setIsFormOpen(false)} />
+        </ResubaleSheet>
+      </div>
+      <DataTable
+        table={table}
+        isLoading={isLoading}
+        isError={isError}
+        isFetching={isFetching}
+        actionBar={<InventoryBulkActionBar table={table} />}
+      >
+        <DataTableToolbar
+          searchPlaceholder="Search products"
+          searchValue={searchValue}
+          onSearchChange={onSearchChange}
+          filters={PRODUCT_FILTERS}
+          filterValues={filterValues}
+          onFilterChange={onFilterChange}
+          onResetFilters={onResetFilters}
+          hasActiveFilters={hasActiveFilters}
+        />
+      </DataTable>
+    </>
   );
 }
