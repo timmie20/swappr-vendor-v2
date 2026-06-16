@@ -17,6 +17,13 @@ export const productEndpoints = {
     return data;
   },
 
+  async getById(id: string) {
+    const { data } = await api.get(`/products/${id}`, {
+      headers: {},
+    });
+    return data;
+  },
+
   async add(payload: CreateProductPayload) {
     const { data } = await api.post("/products/create", payload);
     return data;
@@ -45,6 +52,30 @@ export const productEndpoints = {
 
   async bulkToggle(payload: BulkTogglePublishPayload) {
     const { data } = await api.patch("/products/bulk-toggle", payload);
+    return data;
+  },
+
+  async addVariant(productId: string, variant: Record<string, unknown>) {
+    const { data } = await api.post(`/products/${productId}/variants`, variant);
+    return data;
+  },
+
+  async updateVariant(
+    productId: string,
+    variantId: string,
+    variant: Record<string, unknown>,
+  ) {
+    const { data } = await api.patch(
+      `/products/${productId}/variants/${variantId}`,
+      variant,
+    );
+    return data;
+  },
+
+  async deleteVariant(productId: string, variantId: string) {
+    const { data } = await api.delete(
+      `/products/${productId}/variants/${variantId}`,
+    );
     return data;
   },
 };

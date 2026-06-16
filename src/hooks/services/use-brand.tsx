@@ -11,7 +11,7 @@ export function useBrands(
   return useQuery({
     queryKey: ["brands"],
     queryFn: async () => brandsEndpoints.fetchBrands(),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 1000 * 60 * 60, // 1 hour
     ...options,
   });
 }

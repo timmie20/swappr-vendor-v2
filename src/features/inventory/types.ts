@@ -19,7 +19,7 @@ export type ProductVariant = {
   created_at: string;
 };
 
-export type Product = {
+export interface Product {
   id?: string;
   name: string;
   condition: string;
@@ -41,7 +41,7 @@ export type Product = {
   description: string;
   status: ProductStatus;
   subcategory: { id: string; name: string };
-};
+}
 
 export type PaginatedProducts = {
   products: Product[];

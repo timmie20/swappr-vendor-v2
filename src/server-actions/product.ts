@@ -1,10 +1,10 @@
 import {
   PaginatedProducts,
+  Product,
   ProductQueryParams,
 } from "@/features/inventory/types";
-import { OrderDetails } from "@/features/orders/types";
 import { serverFetch } from "@/lib/api/server";
-import { ApiResponse } from "@/types";
+import { KeyedApiResponse } from "@/types";
 
 export async function fetchProducts(
   params?: ProductQueryParams,
@@ -21,19 +21,11 @@ export async function fetchProducts(
   return res;
 }
 
-export async function fetchOrderDetails(
-  number: string,
-): Promise<ApiResponse<OrderDetails>> {
-  const res = await serverFetch<ApiResponse<OrderDetails>>(`/orders/${number}`);
+export async function fetchProductDetails(
+  id: string,
+): Promise<KeyedApiResponse<{ product: Product }>> {
+  const res = await serverFetch<KeyedApiResponse<{ product: Product }>>(
+    `/products/${id}`,
+  );
   return res;
 }
-
-// export async function updateOrderStatus(
-//   orderId: string,
-//   payload: UpdateOrderStatusPayload,
-// ): Promise<Order> {
-//   return apiClient(`/orders/${orderId}/status`, {
-//     method: "PATCH",
-//     body: JSON.stringify(payload),
-//   });
-// }

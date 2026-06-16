@@ -19,7 +19,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { getChangedFieldsExcluding } from "@/helpers/format";
 import { useCategories } from "@/hooks/services/use-categories";
 import { useBrands } from "@/hooks/services/use-brand";
-import { CategoryType } from "@/types/category";
 import { useUpdateProduct } from "@/hooks/services/use-products";
 import { Product } from "../types";
 

@@ -11,17 +11,29 @@ import {
   CreateProductPayload,
   ProductQueryParams,
   PartialCreateProductPayload,
+  Product,
 } from "@/features/inventory/types";
 import { productQueryKeys } from "@/features/inventory/query-keys";
 import { productEndpoints } from "@/services/products";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/helpers/get-error-message";
+import { KeyedApiResponse } from "@/types";
 
 export function useProducts(params: ProductQueryParams) {
   return useQuery({
     queryKey: productQueryKeys.list(params),
     queryFn: () => productEndpoints.getAll(params),
     placeholderData: keepPreviousData,
+  });
+}
+
+export function useProduct(id: string) {
+  return useQuery({
+    queryKey: productQueryKeys.detail(id),
+    queryFn: async (): Promise<KeyedApiResponse<{ product: Product }>> => {
+      return await productEndpoints.getById(id);
+    },
+    enabled: !!id,
   });
 }
 
@@ -36,8 +48,6 @@ export function useCreateProduct() {
     },
     onError: (error) => {
       const message = getErrorMessage(error);
-
-      console.error("Failed to create product:", message);
 
       toast.error("Failed to create product", {
         description: message,
@@ -63,6 +73,14 @@ export function useUpdateProduct() {
       queryClient.invalidateQueries({
         queryKey: [productQueryKeys.detail, variables.id],
       });
+    },
+    onError: (error) => {
+      const message = getErrorMessage(error);
+
+      toast.error("Failed to update product", {
+        description: message,
+      });
+      return;
     },
   });
 }
@@ -116,6 +134,99 @@ export function useBulkToggleProductPublish() {
     },
     onError: () => {
       toast.error("Failed to update products. Please try again.");
+    },
+  });
+}
+
+export function useAddVariant() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      productId,
+      variant,
+    }: {
+      productId: string;
+      variant: Record<string, unknown>;
+    }): Promise<{ message: string }> => {
+      return await productEndpoints.addVariant(productId, variant);
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [productQueryKeys.detail, variables.productId],
+      });
+      toast.success("Variant added successfully.");
+    },
+    onError: (error: any) => {
+      const message = getErrorMessage(error);
+
+      toast.error("Failed add variant", {
+        description: message,
+      });
+    },
+  });
+}
+
+export function useUpdateVariant() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      productId,
+      variantId,
+      variant,
+    }: {
+      productId: string;
+      variantId: string;
+      variant: Record<string, unknown>;
+    }) => {
+      return await productEndpoints.updateVariant(
+        productId,
+        variantId,
+        variant,
+      );
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [productQueryKeys.detail, variables.productId],
+      });
+      toast.success("Variant updated successfully.");
+    },
+    onError: (error: any) => {
+      const message = getErrorMessage(error);
+
+      toast.error("Failed update variant", {
+        description: message,
+      });
+    },
+  });
+}
+
+export function useDeleteVariant() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      productId,
+      variantId,
+    }: {
+      productId: string;
+      variantId: string;
+    }) => {
+      return await productEndpoints.deleteVariant(productId, variantId);
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [productQueryKeys.detail, variables.productId],
+      });
+      toast.success("Variant deleted successfully.");
+    },
+    onError: (error: any) => {
+      const message = getErrorMessage(error);
+
+      toast.error("Failed delete variant", {
+        description: message,
+      });
     },
   });
 }
