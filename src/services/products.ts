@@ -3,6 +3,7 @@ import {
   BulkTogglePublishPayload,
   CreateProductPayload,
   PaginatedProducts,
+  PartialCreateProductPayload,
   ProductQueryParams,
 } from "@/features/inventory/types";
 import { api } from "@/lib/api/client";
@@ -18,6 +19,22 @@ export const productEndpoints = {
 
   async add(payload: CreateProductPayload) {
     const { data } = await api.post("/products/create", payload);
+    return data;
+  },
+
+  async update(productId: string, productData: PartialCreateProductPayload) {
+    const { data } = await api.patch(
+      `/products/${productId}/update`,
+      productData,
+    );
+    return data;
+  },
+
+  async togglePublish(productID: string) {
+    const { data } = await api.patch(
+      `/products/${productID}/toggle-publish`,
+      {},
+    );
     return data;
   },
 

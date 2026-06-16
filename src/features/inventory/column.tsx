@@ -1,5 +1,4 @@
 import { type ColumnDef } from "@tanstack/react-table";
-import { Eye, PenSquare, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
@@ -27,14 +26,15 @@ interface GetProductColumnsOptions {
   onEdit: (product: Product) => void;
   onDelete: (product: Product) => void;
   onTogglePublish: (product: Product) => void;
+  togglingId?: string; // ← which row is currently pending
 }
-
 // ---- Column definitions ------------------------------------------------
 
 export function getProductColumns({
   onEdit,
   onDelete,
   onTogglePublish,
+  togglingId,
 }: GetProductColumnsOptions): ColumnDef<Product>[] {
   return [
     // Selection
@@ -66,7 +66,7 @@ export function getProductColumns({
       accessorKey: "name",
       header: "Product Name",
       cell: ({ row }) => (
-        <span className="block max-w-45 truncate capitalize">
+        <span className="block max-w-50 truncate capitalize">
           {row.getValue("name")}
         </span>
       ),
@@ -113,6 +113,7 @@ export function getProductColumns({
       cell: ({ row }) => (
         <DataTableSwitch
           checked={row.original.is_active}
+          isPending={togglingId === row.original.id}
           onToggle={() => onTogglePublish(row.original)}
         />
       ),
@@ -142,11 +143,11 @@ export function getProductColumns({
                   <Icons.eye /> View Product
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEdit(product)}>
+              <DropdownMenuItem onSelect={() => onEdit(product)}>
                 <Icons.edit /> Edit product
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => onDelete(product)}
+                onSelect={() => onDelete(product)}
                 className="text-destructive focus:text-destructive"
               >
                 <Icons.trash /> Delete product

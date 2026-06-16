@@ -10,11 +10,11 @@ import {
   BulkTogglePublishPayload,
   CreateProductPayload,
   ProductQueryParams,
+  PartialCreateProductPayload,
 } from "@/features/inventory/types";
 import { productQueryKeys } from "@/features/inventory/query-keys";
 import { productEndpoints } from "@/services/products";
 import { toast } from "sonner";
-import { ProductFormData } from "@/schemas/product";
 import { getErrorMessage } from "@/helpers/get-error-message";
 
 export function useProducts(params: ProductQueryParams) {
@@ -43,6 +43,43 @@ export function useCreateProduct() {
         description: message,
       });
       return;
+    },
+  });
+}
+
+export function useUpdateProduct() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: PartialCreateProductPayload;
+    }) => productEndpoints.update(id, payload),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: productQueryKeys.all() });
+      queryClient.invalidateQueries({
+        queryKey: [productQueryKeys.detail, variables.id],
+      });
+    },
+  });
+}
+
+export function useToggleProductPublish() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, is_active }: { id: string; is_active: boolean }) =>
+      productEndpoints.togglePublish(id), // your existing service call
+
+    onSuccess: (_, { is_active }) => {
+      queryClient.invalidateQueries({ queryKey: productQueryKeys.all() });
+      toast.success(is_active ? "Product published" : "Product unpublished");
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error));
     },
   });
 }

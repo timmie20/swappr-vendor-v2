@@ -1,5 +1,5 @@
 import { CreateProductPayload } from "@/features/inventory/types";
-import { ProductFormData } from "@/schemas/product";
+import { EditProductFormData, ProductFormData } from "@/schemas/product";
 import { format, formatDistanceToNow } from "date-fns";
 
 export const formatCurrency = (amount: number) =>
@@ -87,3 +87,24 @@ export const normalizePayload = (
     })),
   };
 };
+
+export function getChangedFieldsExcluding<T extends Record<string, any>>(
+  initialData: T,
+  updatedData: T,
+  excludedKeys: (keyof T)[] = [],
+): Partial<T> {
+  const changes: Partial<T> = {};
+
+  for (const key in updatedData) {
+    if (excludedKeys.includes(key)) continue;
+
+    const hasChanged =
+      JSON.stringify(initialData[key]) !== JSON.stringify(updatedData[key]);
+
+    if (hasChanged) {
+      changes[key] = updatedData[key];
+    }
+  }
+
+  return changes;
+}

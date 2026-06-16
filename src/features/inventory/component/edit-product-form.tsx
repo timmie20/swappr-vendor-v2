@@ -1,68 +1,56 @@
 "use client";
 
-import { useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
-
+import { useMemo } from "react";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { SheetClose, SheetFooter } from "@/components/ui/sheet";
 
-import { Trash2 } from "lucide-react";
+import { EditProductFormData, EditProductFormSchema } from "@/schemas/product";
 
 import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormTextarea } from "@/components/forms/form-textarea";
-import { Spinner } from "@/components/ui/spinner";
 import SpecificationsSection from "./specification-section";
-import { ProductImageUpload } from "./product-image-upload";
+import { SheetClose, SheetFooter } from "@/components/ui/sheet";
+import { Spinner } from "@/components/ui/spinner";
+import { getChangedFieldsExcluding } from "@/helpers/format";
 import { useCategories } from "@/hooks/services/use-categories";
-import { useCreateProduct } from "@/hooks/services/use-products";
-import { ProductFormData, ProductFormSchema } from "@/schemas/product";
-import { ProductMode } from "../types";
 import { useBrands } from "@/hooks/services/use-brand";
-import { normalizePayload } from "@/helpers/format";
+import { CategoryType } from "@/types/category";
+import { useUpdateProduct } from "@/hooks/services/use-products";
+import { Product } from "../types";
 
-const defaultValues: ProductFormData = {
-  name: "",
-  brand_id: "",
-  category_id: "",
-  subcategory_id: "",
-
-  condition: "NEW",
-
-  mode: ProductMode.SALE,
-
-  carrier_status: undefined,
-
-  description: "",
-
-  images: [],
-
-  base_price: "",
-
-  total_stock: "",
-
-  variants: [],
-
-  specifications: [],
-};
-
-type Props = {
+type FormComponentProps = {
+  initialData: Product;
   onSuccessAction?: () => void;
 };
 
-export default function AddProductForm({ onSuccessAction }: Props) {
-  const { mutate: createProduct, isPending } = useCreateProduct();
+export default function EditProductForm({
+  onSuccessAction,
+  initialData,
+}: FormComponentProps) {
+  const { mutate: updateProduct, isPending } = useUpdateProduct();
   const { data: categoriesData, isLoading: catLoading } = useCategories();
   const { data: brandsData, isLoading: brandsLoading } = useBrands();
 
-  const form = useForm<ProductFormData>({
-    resolver: zodResolver(ProductFormSchema),
-
-    values: defaultValues,
+  const form = useForm<EditProductFormData>({
+    resolver: zodResolver(EditProductFormSchema),
+    values: {
+      name: initialData.name,
+      brand_id: initialData.brand.id,
+      category_id: initialData.category.id,
+      subcategory_id: initialData.subcategory.id,
+      condition: initialData.condition,
+      mode: initialData.mode,
+      carrier_status: initialData.carrier_status ?? undefined,
+      base_price: String(initialData.base_price),
+      total_stock: String(initialData.total_stock),
+      description: initialData.description,
+      specifications: initialData.specifications,
+    },
   });
 
   const selectedCategoryId = form.watch("category_id");
@@ -71,12 +59,7 @@ export default function AddProductForm({ onSuccessAction }: Props) {
     return categoriesData?.categories.find(
       (category) => category.id === selectedCategoryId,
     );
-  }, [selectedCategoryId]);
-
-  const variants = useFieldArray({
-    control: form.control,
-    name: "variants",
-  });
+  }, [categoriesData?.categories, selectedCategoryId]);
 
   const specifications = useFieldArray({
     control: form.control,
@@ -99,7 +82,7 @@ export default function AddProductForm({ onSuccessAction }: Props) {
     selectedCategory?.sub_categories.map((subcategory) => ({
       label: subcategory.name,
       value: subcategory.id,
-    })) ?? [];
+    })) || [];
 
   const supportsVariants = selectedCategory?.supports_variants;
 
@@ -107,55 +90,48 @@ export default function AddProductForm({ onSuccessAction }: Props) {
 
   const supportsCarrierStatus = selectedCategory?.supports_carrier_status;
 
-  const onSubmit = (data: ProductFormData) => {
-    if (supportsVariants && data.variants.length === 0) {
-      toast.error("At least one variant is required for this category");
-      return;
-    }
+  const isDirty = form.formState.isDirty;
 
-    if (supportsStock && data.total_stock?.trim() === "") {
-      toast.error("Stock quantity is required for this category");
-      return;
-    }
+  function onSubmit(data: EditProductFormData) {
+    const raw = getChangedFieldsExcluding<any>(initialData, data);
 
-    if (
-      supportsCarrierStatus &&
-      (!data.carrier_status || data.carrier_status.trim() === "")
-    ) {
-      toast.error("Carrier status is required for this category");
-      return;
-    }
+    const payload = {
+      ...raw,
 
-    const payload = normalizePayload(data);
+      // Ensure numeric fields are properly converted
+      ...(raw.base_price && { base_price: Number(raw.base_price) }),
+      ...(raw.total_stock && { total_stock: Number(raw.total_stock) }),
+    };
 
-    createProduct(payload, {
-      onSuccess: () => {
-        toast.success("Product created successfully");
-
-        form.reset(defaultValues);
-
-        onSuccessAction?.();
+    updateProduct(
+      { id: initialData.id || "", payload },
+      {
+        onSuccess: () => {
+          onSuccessAction?.();
+          toast.success("Product Updated successfully!");
+        },
+        onError: (error: any) => {
+          toast.error(error?.message || "Failed to Update product");
+        },
       },
-    });
-  };
-
+    );
+  }
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        {" "}
         <div className="space-y-8">
-          {" "}
           <section className="space-y-4">
-            {" "}
             <h3 className="text-sm font-semibold uppercase">
-              Basic Information{" "}
+              Basic Information
             </h3>
+
             <FormInput
               control={form.control}
               name="name"
               label="Product Name"
               placeholder="iPhone 16 Pro"
             />
+
             <FormSelect
               control={form.control}
               name="brand_id"
@@ -164,6 +140,7 @@ export default function AddProductForm({ onSuccessAction }: Props) {
               placeholder="Select a Brand"
               disabled={brandsLoading || brandOptions.length === 0}
             />
+
             <FormSelect
               control={form.control}
               name="category_id"
@@ -172,6 +149,7 @@ export default function AddProductForm({ onSuccessAction }: Props) {
               placeholder="Select a Category"
               disabled={catLoading || categoryOptions.length === 0}
             />
+
             <FormSelect
               control={form.control}
               name="subcategory_id"
@@ -180,6 +158,7 @@ export default function AddProductForm({ onSuccessAction }: Props) {
               placeholder="Select a Sub Category"
               disabled={subCategoryOptions.length === 0}
             />
+
             <FormSelect
               control={form.control}
               name="condition"
@@ -190,6 +169,7 @@ export default function AddProductForm({ onSuccessAction }: Props) {
                 { label: "Eko Friendly", value: "EKO_FRIENDLY" },
               ]}
             />
+
             <FormTextarea
               control={form.control}
               name="description"
@@ -197,13 +177,7 @@ export default function AddProductForm({ onSuccessAction }: Props) {
               placeholder="Describe the product..."
             />
           </section>
-          <Separator />
-          <section>
-            <ProductImageUpload
-              onImagesUploaded={(urls) => form.setValue("images", urls)}
-              error={form.formState.errors.images?.message as string}
-            />
-          </section>
+
           {!supportsVariants && (
             <>
               <Separator />
@@ -219,6 +193,7 @@ export default function AddProductForm({ onSuccessAction }: Props) {
               </section>
             </>
           )}
+
           {supportsCarrierStatus && (
             <>
               <Separator />
@@ -231,10 +206,10 @@ export default function AddProductForm({ onSuccessAction }: Props) {
                   { label: "Unlocked", value: "unlocked" },
                   { label: "Locked", value: "locked" },
                 ]}
-                placeholder="Select Carrier status"
               />
             </>
           )}
+
           {supportsStock && (
             <>
               <Separator />
@@ -242,102 +217,30 @@ export default function AddProductForm({ onSuccessAction }: Props) {
               <FormInput
                 control={form.control}
                 name="total_stock"
-                label="Stock Quantity"
+                label=" Stock Quantity"
                 placeholder="enter stock quantity"
               />
             </>
           )}
-          {supportsVariants && (
-            <>
-              <Separator />
 
-              <section className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold uppercase">Variants</h3>
-
-                  <Button
-                    type="button"
-                    className="cursor-pointer"
-                    onClick={() =>
-                      variants.append({
-                        color: "",
-                        storage: "",
-                        price: "",
-                        stock_quantity: "",
-                      })
-                    }
-                  >
-                    Add Variant
-                  </Button>
-                </div>
-
-                {variants.fields.map((field, index) => (
-                  <div key={field.id} className="space-y-4 p-4">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium">Variant {index + 1}</p>
-                      {variants.fields.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive hover:text-destructive cursor-pointer"
-                          onClick={() => variants.remove(index)}
-                        >
-                          <Trash2 className="size-4" />
-                        </Button>
-                      )}
-                    </div>
-
-                    <FormInput
-                      control={form.control}
-                      name={`variants.${index}.color`}
-                      label="Color"
-                      placeholder="Blue Titanium"
-                    />
-
-                    <FormInput
-                      control={form.control}
-                      name={`variants.${index}.storage`}
-                      label="Storage (GB)"
-                      placeholder="256"
-                    />
-
-                    <FormInput
-                      control={form.control}
-                      name={`variants.${index}.price`}
-                      label="Price"
-                      placeholder="1099.99"
-                    />
-
-                    <FormInput
-                      control={form.control}
-                      name={`variants.${index}.stock_quantity`}
-                      label="Stock Quantity"
-                      placeholder="25"
-                    />
-                  </div>
-                ))}
-              </section>
-            </>
-          )}
           <Separator />
           <SpecificationsSection
             control={form.control}
             specifications={specifications}
           />
         </div>
+
         <SheetFooter className="bg-background/80 sticky bottom-0 mt-8 border-t pt-4 backdrop-blur">
-          <Button disabled={isPending} className="cursor-pointer" type="submit">
+          <Button disabled={!isDirty || isPending} type="submit">
             {isPending ? (
               <span className="inline-flex items-center">
                 <Spinner className="mr-2" />
-                Creating...
+                Saving...
               </span>
             ) : (
-              "Create Product"
-            )}
+              "Save Changes"
+            )}{" "}
           </Button>
-
           <SheetClose asChild>
             <Button variant="outline" disabled={isPending}>
               Close

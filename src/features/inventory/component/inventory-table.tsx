@@ -1,10 +1,13 @@
 "use client";
 
-import { useProducts } from "@/hooks/services/use-products";
+import {
+  useProducts,
+  useToggleProductPublish,
+} from "@/hooks/services/use-products";
 import { useFilterState } from "@/hooks/use-filter-state";
 import { useTableState } from "@/hooks/use-table-state";
 import React, { useMemo } from "react";
-import { ProductQueryParams, ProductStatus } from "../types";
+import { Product, ProductQueryParams, ProductStatus } from "../types";
 import { getProductColumns } from "../column";
 import {
   getCoreRowModel,
@@ -21,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import ResubaleSheet from "@/components/resuable-sheet";
 import AddProductForm from "./product-form";
 import { Icons } from "@/components/shared/icons";
+import EditProductForm from "./edit-product-form";
 
 // Static — no data dependency, safe outside the component
 const STATUS_FILTER_OPTIONS = Object.values(ProductStatus).map((status) => ({
@@ -30,6 +34,8 @@ const STATUS_FILTER_OPTIONS = Object.values(ProductStatus).map((status) => ({
 
 export default function InventoryTable() {
   const [isFormOpen, setIsFormOpen] = React.useState(false);
+
+  const [isEdit, setIsEdit] = React.useState<Product | null>(null);
 
   const {
     tableState,
@@ -56,6 +62,12 @@ export default function InventoryTable() {
   // Cache is already warm from server prefetch — no loading state needed here
   const { data: categoriesData } = useCategories();
 
+  const {
+    mutate: togglePublish,
+    isPending: isToggling,
+    variables,
+  } = useToggleProductPublish();
+
   // Derived from async data — must live inside the component
   const categoryFilterOptions = useMemo(
     () => formatToOptions(categoriesData?.categories ?? [], ["id", "name"]),
@@ -81,15 +93,41 @@ export default function InventoryTable() {
     [categoryFilterOptions],
   );
 
+  const handleProductEdit = (product: Product) => {
+    requestAnimationFrame(() => {
+      setIsFormOpen(true);
+      setIsEdit(product);
+    });
+  };
+
   const columns = useMemo(
     () =>
       getProductColumns({
-        onEdit: (product) => console.log("edit", product),
+        onEdit: (product) => handleProductEdit(product),
         onDelete: (product) => console.log("delete", product),
-        onTogglePublish: (product) => console.log("toggle status", product),
+        onTogglePublish: (product) =>
+          togglePublish({
+            id: product.id || "",
+            is_active: !product.is_active,
+          }),
+        togglingId: isToggling ? variables?.id : undefined,
       }),
-    [],
+    [isToggling, variables?.id],
   );
+
+  const unmountEdit = () => {
+    requestAnimationFrame(() => {
+      setIsEdit(null);
+      setIsFormOpen(false);
+    });
+  };
+
+  const onSheetOpenChange = (open: boolean) => {
+    if (!open) {
+      setIsEdit(null);
+    }
+    setIsFormOpen(open);
+  };
 
   const table = useReactTable({
     data: data?.products ?? [],
@@ -108,8 +146,12 @@ export default function InventoryTable() {
     <>
       <div className="flex items-center justify-end">
         <ResubaleSheet
-          title="Add New Product"
-          description="Fill in the details to add a new product to your inventory."
+          title={isEdit ? "Edit Product" : "Add New Product"}
+          description={
+            isEdit
+              ? "Update or Modify product details "
+              : "Fill in the details to add a new product to your inventory."
+          }
           trigger={
             <Button className="cursor-pointer">
               <Icons.add />
@@ -117,9 +159,16 @@ export default function InventoryTable() {
             </Button>
           }
           open={isFormOpen}
-          onOpenChange={setIsFormOpen}
+          onOpenChange={onSheetOpenChange}
         >
-          <AddProductForm onSuccessAction={() => setIsFormOpen(false)} />
+          {isEdit ? (
+            <EditProductForm
+              initialData={isEdit}
+              onSuccessAction={() => unmountEdit()}
+            />
+          ) : (
+            <AddProductForm onSuccessAction={() => setIsFormOpen(false)} />
+          )}
         </ResubaleSheet>
       </div>
       <DataTable

@@ -96,3 +96,5 @@ export interface CreateProductPayload {
     stock_quantity: number;
   }[];
 }
+
+export type PartialCreateProductPayload = Partial<CreateProductPayload>;
