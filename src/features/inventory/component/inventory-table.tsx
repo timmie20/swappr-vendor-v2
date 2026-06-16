@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useDeleteProduct,
   useProducts,
   useToggleProductPublish,
 } from "@/hooks/services/use-products";
@@ -25,6 +26,7 @@ import ResubaleSheet from "@/components/resuable-sheet";
 import AddProductForm from "./product-form";
 import { Icons } from "@/components/shared/icons";
 import EditProductForm from "./edit-product-form";
+import { DeleteAction } from "@/components/resuable-delete-dialog";
 
 // Static — no data dependency, safe outside the component
 const STATUS_FILTER_OPTIONS = Object.values(ProductStatus).map((status) => ({
@@ -36,6 +38,8 @@ export default function InventoryTable() {
   const [isFormOpen, setIsFormOpen] = React.useState(false);
 
   const [isEdit, setIsEdit] = React.useState<Product | null>(null);
+
+  const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
 
   const {
     tableState,
@@ -67,6 +71,8 @@ export default function InventoryTable() {
     isPending: isToggling,
     variables,
   } = useToggleProductPublish();
+
+  const { mutate: deleteProduct, isPending: isDeleting } = useDeleteProduct();
 
   // Derived from async data — must live inside the component
   const categoryFilterOptions = useMemo(
@@ -100,11 +106,29 @@ export default function InventoryTable() {
     });
   };
 
+  const handleDeleteTrigger = (product: Product) => {
+    requestAnimationFrame(() => {
+      setIsEdit(product);
+      setOpenDeleteDialog(true);
+    });
+  };
+
+  const handleDelete = (productId: string) => {
+    if (!isEdit) return;
+
+    deleteProduct(productId, {
+      onSuccess: () => {
+        setOpenDeleteDialog(false);
+        setIsEdit(null);
+      },
+    });
+  };
+
   const columns = useMemo(
     () =>
       getProductColumns({
         onEdit: (product) => handleProductEdit(product),
-        onDelete: (product) => console.log("delete", product),
+        onDelete: (product) => handleDeleteTrigger(product),
         onTogglePublish: (product) =>
           togglePublish({
             id: product.id || "",
@@ -127,6 +151,13 @@ export default function InventoryTable() {
       setIsEdit(null);
     }
     setIsFormOpen(open);
+  };
+
+  const onDeleteDialogOpenChange = (open: boolean) => {
+    if (!open) {
+      setIsEdit(null);
+    }
+    setOpenDeleteDialog(open);
   };
 
   const table = useReactTable({
@@ -189,6 +220,14 @@ export default function InventoryTable() {
           hasActiveFilters={hasActiveFilters}
         />
       </DataTable>
+
+      <DeleteAction
+        entityName={isEdit?.name}
+        isPending={isDeleting}
+        isOpen={openDeleteDialog}
+        onOpenChange={onDeleteDialogOpenChange}
+        handleConfirm={() => handleDelete(isEdit?.id ?? "")}
+      />
     </>
   );
 }

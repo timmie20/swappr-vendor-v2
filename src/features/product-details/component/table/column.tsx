@@ -10,7 +10,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
 import { Icons } from "@/components/shared/icons";
 
 import { formatCurrency } from "@/helpers/format";
@@ -65,7 +64,7 @@ export function getVariantColumns({
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="size-8">
                 <span className="sr-only">Open actions</span>
-                <MoreHorizontal className="size-4" />
+                <Icons.ellipsis className="size-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

@@ -2,7 +2,6 @@ import { productQueryKeys } from "@/features/inventory/query-keys";
 import ProductDetails from "@/features/product-details/page";
 import { getQueryClient } from "@/lib/query/prefetch";
 import { fetchProductDetails } from "@/server-actions/product";
-import { productEndpoints } from "@/services/products";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import React from "react";
 

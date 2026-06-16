@@ -129,7 +129,7 @@ export function getOrderColumns({
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="size-8">
                 <span className="sr-only">Open actions</span>
-                <MoreVertical className="size-4" />
+                <Icons.ellipsis className="size-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

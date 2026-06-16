@@ -85,6 +85,28 @@ export function useUpdateProduct() {
   });
 }
 
+export function useDeleteProduct() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (productId: string): Promise<{ message: string }> => {
+      return await productEndpoints.delete(productId);
+    },
+    onSuccess: () => {
+      toast.success("Product deleted successfully.");
+      queryClient.invalidateQueries({ queryKey: productQueryKeys.all() });
+    },
+    onError: (error) => {
+      const message = getErrorMessage(error);
+
+      toast.error("Failed to delete product", {
+        description: message,
+      });
+      return;
+    },
+  });
+}
+
 export function useToggleProductPublish() {
   const queryClient = useQueryClient();
 
@@ -153,7 +175,7 @@ export function useAddVariant() {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [productQueryKeys.detail, variables.productId],
+        queryKey: productQueryKeys.detail(variables.productId),
       });
       toast.success("Variant added successfully.");
     },
@@ -188,7 +210,7 @@ export function useUpdateVariant() {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [productQueryKeys.detail, variables.productId],
+        queryKey: productQueryKeys.detail(variables.productId),
       });
       toast.success("Variant updated successfully.");
     },
@@ -217,7 +239,7 @@ export function useDeleteVariant() {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [productQueryKeys.detail, variables.productId],
+        queryKey: productQueryKeys.detail(variables.productId),
       });
       toast.success("Variant deleted successfully.");
     },

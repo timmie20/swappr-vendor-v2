@@ -37,6 +37,11 @@ export const productEndpoints = {
     return data;
   },
 
+  async delete(productID: string) {
+    const { data } = await api.delete(`/products/${productID}/delete`);
+    return data;
+  },
+
   async togglePublish(productID: string) {
     const { data } = await api.patch(
       `/products/${productID}/toggle-publish`,

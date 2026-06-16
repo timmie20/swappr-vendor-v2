@@ -18,25 +18,30 @@ import {
 import { FormInput } from "@/components/forms/form-input";
 import { ProductVariant } from "@/features/inventory/types";
 import { VariantFormData, VariantFormSchema } from "@/schemas/product";
+import { Spinner } from "@/components/ui/spinner";
 import { useAddVariant, useUpdateVariant } from "@/hooks/services/use-products";
 
 type VariantFormProps = {
   productId: string;
-  variant?: ProductVariant;
+  isOpen?: boolean;
+  onOpenChangeAction?: (open: boolean) => void;
+  variant?: ProductVariant | null;
   children: React.ReactNode;
   onSuccessAction?: () => void;
 };
 
 export default function VariantForm({
   productId,
+  isOpen,
+  onOpenChangeAction,
   variant,
   children,
   onSuccessAction,
 }: VariantFormProps) {
-  const isEdit = !!variant;
-
   const { mutate: addVariant, isPending: isAdding } = useAddVariant();
   const { mutate: updateVariant, isPending: isUpdating } = useUpdateVariant();
+
+  const isEdit = !!variant;
 
   const form = useForm<VariantFormData>({
     resolver: zodResolver(VariantFormSchema),
@@ -56,9 +61,16 @@ export default function VariantForm({
   });
 
   function onSubmit(data: VariantFormData) {
+    const payload = {
+      color: data.color,
+      storage: Number(data.storage),
+      price: Number(data.price),
+      stock_quantity: Number(data.stock_quantity),
+    };
+
     if (isEdit && variant) {
       updateVariant(
-        { productId, variantId: variant.id, variant: data },
+        { productId, variantId: variant.id, variant: payload },
         {
           onSuccess: () => {
             form.reset();
@@ -68,7 +80,7 @@ export default function VariantForm({
       );
     } else {
       addVariant(
-        { productId, variant: data },
+        { productId, variant: payload },
         {
           onSuccess: () => {
             form.reset();
@@ -82,7 +94,7 @@ export default function VariantForm({
   const isPending = isAdding || isUpdating;
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={onOpenChangeAction}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
@@ -108,7 +120,6 @@ export default function VariantForm({
                 name="storage"
                 label="Storage Capacity (GB)"
                 placeholder="e.g. 128, 256, 512"
-                type="number"
               />
 
               <FormInput
@@ -123,7 +134,6 @@ export default function VariantForm({
                 name="stock_quantity"
                 label="Stock Quantity"
                 placeholder="e.g. 10"
-                type="number"
               />
             </div>
 
@@ -134,7 +144,15 @@ export default function VariantForm({
                 </Button>
               </DialogClose>
               <Button disabled={isPending}>
-                {isEdit ? "Update Variant" : "Add Variant"}
+                {isAdding || isUpdating ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Spinner /> Saving
+                  </span>
+                ) : isEdit ? (
+                  "Update Variant"
+                ) : (
+                  "Add Variant"
+                )}
               </Button>
             </DialogFooter>
           </form>

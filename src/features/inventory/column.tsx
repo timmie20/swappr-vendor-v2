@@ -12,7 +12,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
 
 import type { Product, ProductStatus } from "./types";
 import { formatCurrency } from "@/helpers/format";
@@ -20,15 +19,12 @@ import { PRODUCT_BADGE_MAP } from "@/constants/badge";
 import { DataTableSwitch } from "@/components/table/data-table-switch";
 import { Icons } from "@/components/shared/icons";
 
-// ---- Action callbacks ---------------------------------------------------
-
 interface GetProductColumnsOptions {
   onEdit: (product: Product) => void;
   onDelete: (product: Product) => void;
   onTogglePublish: (product: Product) => void;
   togglingId?: string; // ← which row is currently pending
 }
-// ---- Column definitions ------------------------------------------------
 
 export function getProductColumns({
   onEdit,
@@ -132,7 +128,7 @@ export function getProductColumns({
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="size-8">
                 <span className="sr-only">Open actions</span>
-                <MoreHorizontal className="size-4" />
+                <Icons.ellipsis className="size-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
