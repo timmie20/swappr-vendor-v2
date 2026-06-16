@@ -24,6 +24,8 @@ export default function Details({ product }: ProductDetailsProps) {
 
   const publishedStatus = product.is_active ? "published" : "unpublished";
 
+  const { label, variant } = PRODUCT_BADGE_MAP[product.status];
+
   return (
     <section>
       <div className="mt-6 mb-6 flex flex-col gap-6 md:flex-row lg:gap-8">
@@ -53,13 +55,9 @@ export default function Details({ product }: ProductDetailsProps) {
               Status:
             </Typography>
 
-            <Badge
-              variant={PRODUCT_BADGE_MAP[product.status]}
-              className="shrink-0 text-xs capitalize"
-            >
-              {product.status.replace(/_/g, " ")}
+            <Badge variant={variant} className="shrink-0 text-xs capitalize">
+              {label}
             </Badge>
-
             <Badge
               variant={product.is_active ? "default" : "destructive"}
               className="shrink-0 text-xs capitalize"
