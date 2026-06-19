@@ -15,7 +15,7 @@ export default function Item({ item }: NavItemType) {
     <SidebarMenuItem key={item.title}>
       <SidebarMenuButton asChild isActive={path === item.url}>
         <a href={item.url} className="flex items-center space-x-2">
-          <item.icon className="w-4 h-4" />
+          <item.icon className="h-4 w-4" />
           <span>{item.title}</span>
         </a>
       </SidebarMenuButton>
