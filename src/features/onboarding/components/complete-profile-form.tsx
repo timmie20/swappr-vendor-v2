@@ -1,10 +1,8 @@
-// features/onboarding/complete-profile/complete-profile-form.tsx
 "use client";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { FormInput } from "@/components/forms/form-input";
 import {
@@ -12,6 +10,8 @@ import {
   completeProfileSchema,
 } from "@/schemas/onboarding";
 import { useCompleteProfile } from "@/hooks/services/use-onboarding-mutation";
+import { SubmitButton } from "@/components/forms/submit-button";
+import { FormTextarea } from "@/components/forms/form-textarea";
 
 export function CompleteProfileForm() {
   const form = useForm<CompleteProfileInput>({
@@ -41,8 +41,7 @@ export function CompleteProfileForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FieldGroup>
-          {/* ⚠️ swap for a FormTextarea if one exists — this is multi-line content */}
-          <FormInput
+          <FormTextarea
             control={form.control}
             name="description"
             label="Store description"
@@ -69,9 +68,14 @@ export function CompleteProfileForm() {
         </FieldGroup>
 
         <Field orientation="horizontal">
-          <Button type="submit" disabled={isPending} className="w-full">
-            {isPending ? "Saving..." : "Complete profile"}
-          </Button>
+          <SubmitButton
+            type="submit"
+            disabled={isPending}
+            loadingText="Saving..."
+            className="w-full"
+          >
+            Save and continue
+          </SubmitButton>
         </Field>
       </form>
     </Form>

@@ -34,7 +34,8 @@ export const ONBOARDING_STEPS: StepConfig[] = [
     action: "complete-profile",
     completesAt: "profile_completed",
     title: "Complete your profile",
-    description: "Add the store details customers will see before you go live.",
+    description:
+      "Add the store details customers will see before you go live. Note that you can always edit these details later. Click 'Save' to continue.",
   },
 ];
 
