@@ -6,6 +6,7 @@ import Header from "@/components/shared/header";
 import { requireSession } from "@/lib/auth/session";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { cookies } from "next/headers";
+import { requireOnboardingComplete } from "@/lib/onboarding/server";
 
 export default async function DashboardLayout({
   children,
@@ -16,6 +17,8 @@ export default async function DashboardLayout({
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
 
   const session = await requireSession();
+
+  await requireOnboardingComplete();
 
   return (
     <SidebarProvider defaultOpen={true}>

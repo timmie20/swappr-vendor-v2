@@ -1,3 +1,4 @@
+import { ApiReject } from "@/types";
 import axios, { AxiosInstance, AxiosError } from "axios";
 
 export interface ApiErrorResponse {
@@ -27,12 +28,12 @@ class ApiClient {
     // No token logic here — middleware owns the auth lifecycle
     this.instance.interceptors.response.use(
       (response) => response,
-      (error: AxiosError<ApiErrorResponse>) => {
+      (error: AxiosError<ApiReject>) => {
         if (error.response) {
           return Promise.reject({
             message: error.response.data?.message || "An error occurred",
             statusCode: error.response.status,
-            error: error.response.data?.error,
+            error: error,
           });
         }
 

@@ -13,6 +13,7 @@ import { signInSchema } from "@/schemas/auth";
 import { useLogin } from "@/hooks/services/use-auth";
 import Image from "next/image";
 import { ASSETS } from "@/constants/assets";
+import { SubmitButton } from "@/components/forms/submit-button";
 
 type SignInFormValues = z.infer<typeof signInSchema>;
 
@@ -89,20 +90,13 @@ export default function SignInForm() {
         </FieldGroup>
 
         <Field orientation="horizontal">
-          <Button
-            type="submit"
-            className="h-12 w-full cursor-pointer"
+          <SubmitButton
+            isLoading={login.isPending}
             disabled={login.isPending}
-            size="lg"
+            loadingText="Signing in..."
           >
-            {login.isPending ? (
-              <span className="inline-flex items-center gap-2">
-                <Spinner /> Signing in
-              </span>
-            ) : (
-              "Sign in"
-            )}
-          </Button>
+            Sign in
+          </SubmitButton>
         </Field>
       </form>
 
