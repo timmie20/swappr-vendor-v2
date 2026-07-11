@@ -14,6 +14,7 @@ import { useLogin } from "@/hooks/services/use-auth";
 import Image from "next/image";
 import { ASSETS } from "@/constants/assets";
 import { SubmitButton } from "@/components/forms/submit-button";
+import { getOnboardingCompleteFlag } from "@/lib/onboarding/client-flag";
 
 type SignInFormValues = z.infer<typeof signInSchema>;
 
@@ -37,7 +38,13 @@ export default function SignInForm() {
   function onSubmit(values: SignInFormValues) {
     login.mutate(values, {
       onSuccess: () => {
-        router.push(redirect);
+        // Known-incomplete onboarding skips the dashboard hop (which would
+        // only redirect back out) and resumes at the right step directly.
+        // The flag is a local hint — if it's stale or unset, the server
+        // layouts still redirect to the correct place.
+        const destination =
+          getOnboardingCompleteFlag() === false ? "/onboarding" : redirect;
+        router.push(destination);
       },
     });
   }

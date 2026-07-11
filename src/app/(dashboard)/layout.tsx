@@ -7,6 +7,7 @@ import { requireSession } from "@/lib/auth/session";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { cookies } from "next/headers";
 import { requireOnboardingComplete } from "@/lib/onboarding/server";
+import { OnboardingFlagSync } from "@/components/shared/onboarding-flag-sync";
 
 export default async function DashboardLayout({
   children,
@@ -24,7 +25,7 @@ export default async function DashboardLayout({
     <SidebarProvider defaultOpen={true}>
       <NuqsAdapter>
         <div className="flex h-screen w-full overflow-hidden">
-          <AppSidebar />
+          <AppSidebar user={session} />
 
           <SidebarInset className="flex min-h-0 flex-1 flex-col">
             <Header user={session} />
@@ -34,6 +35,9 @@ export default async function DashboardLayout({
             </main>
           </SidebarInset>
         </div>
+
+        {/* requireOnboardingComplete passed, so onboarding is done */}
+        <OnboardingFlagSync complete={true} />
       </NuqsAdapter>
     </SidebarProvider>
   );

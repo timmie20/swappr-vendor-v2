@@ -8,4 +8,7 @@ export const ASSETS = {
     "https://res.cloudinary.com/doi4zvlbi/image/upload/v1781301721/server-error_uchium.svg",
   EMPTY_STATE:
     "https://res.cloudinary.com/doi4zvlbi/image/upload/v1781301721/empty-box_ashziw.svg",
+
+  LOGO_FILLED:
+    "https://res.cloudinary.com/doi4zvlbi/image/upload/v1783755797/swappr-logo-filled_t352lv.png",
 };

@@ -64,6 +64,8 @@
     "sonner": "^1.7.4",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
+    "timepicker-ui": "^4.4.0",
+    "timepicker-ui-react": "^1.4.0",
     "use-debounce": "^10.1.1",
     "vaul": "^1.1.2",
     "zod": "3.25.76"

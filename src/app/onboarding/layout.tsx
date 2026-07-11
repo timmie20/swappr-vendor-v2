@@ -4,7 +4,8 @@ import { requireSession } from "@/lib/auth/session";
 import { OnboardingStepper } from "@/features/onboarding/components/stepper";
 import Image from "next/image";
 import { ASSETS } from "@/constants/assets";
-import { Button } from "@/components/ui/button";
+import { LogoutButton } from "@/components/shared/logout-button";
+import { OnboardingFlagSync } from "@/components/shared/onboarding-flag-sync";
 
 export default async function OnboardingLayout({
   children,
@@ -16,19 +17,6 @@ export default async function OnboardingLayout({
 
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-2">
-      {/* <aside className="border-border bg-muted/30 border-b px-6 py-6 sm:px-10 lg:sticky lg:top-0 lg:h-screen lg:border-r lg:border-b-0 lg:px-16 lg:py-16">
-        <div className="relative z-20 flex items-center font-medium">
-          <Image
-            src={ASSETS.LOGO_DARK}
-            alt="Swappr"
-            width={200}
-            height={40}
-            priority
-            className="h-10 w-auto cursor-pointer"
-          />
-        </div>
-      </aside> */}
-
       <div className="bg-muted relative hidden h-full flex-col p-10 text-white lg:flex dark:border-r">
         <div className="absolute inset-0 bg-zinc-900" />
         <div className="relative z-20 flex items-center justify-between font-medium">
@@ -49,21 +37,22 @@ export default async function OnboardingLayout({
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
             <p className="text-lg">
-              Swappr platform aims to create a secure and transparent system for
-              buying and swapping phones by implementing a phone rating
-              calculator to accurately represent device conditions, addressing
-              prevalent fraud in the Nigerian market. The system will utilize
-              diagnostic tools, user verification through KYC, and AI-driven
-              fraud prevention in future updates.
+              Almost there. A few quick checks — business and ID verification —
+              and your storefront goes live. This keeps every vendor on Swappr
+              accountable, so buyers trust what they see and you close more
+              sales.
             </p>
             <footer className="text-sm">Cheers 🍻</footer>
           </blockquote>
         </div>
       </div>
 
-      <main className="flex justify-center px-6 py-10 sm:px-10 lg:h-screen lg:items-center lg:overflow-y-auto lg:py-16">
+      <main className="relative flex justify-center px-6 py-10 sm:px-10 lg:h-screen lg:items-center lg:overflow-y-auto lg:py-16">
+        <LogoutButton className="text-muted-foreground absolute top-4 right-4" />
         <div className="w-full max-w-md">{children}</div>
       </main>
+
+      <OnboardingFlagSync complete={false} />
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import type { OperatingHours } from "@/schemas/onboarding";
+
 export interface AuthTokens {
   access_token: string;
   refresh_token: string;
@@ -8,6 +10,9 @@ export interface VendorSession {
   id: string;
   email: string;
   businessName: string;
+  firstName?: string;
+  lastName?: string;
+  avatarUrl?: string;
   isVerified: boolean;
   logoUrl?: string;
 }
@@ -22,15 +27,25 @@ export type LoginCredentials = {
   password: string;
 };
 
+/** Nested account owner object on /vendors/me */
+export interface VendorUser {
+  id: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  avatar_url?: string;
+  email_verified?: boolean;
+}
+
 export type VendorProfile = {
   id: string;
   user_id: string;
+  user: VendorUser;
   business_name: string;
   business_address?: string;
   state?: string;
   city?: string;
   contact_number?: string;
-  email: string;
   logo_url?: string;
   description?: string;
   is_verified: boolean;
@@ -41,7 +56,7 @@ export type VendorProfile = {
   bank_name?: string;
   account_name?: string;
   store_photos?: string[];
-  operating_hours?: string;
+  operating_hours?: OperatingHours;
   landmark?: string;
   paystack_recipient_code?: string;
   created_at?: string;

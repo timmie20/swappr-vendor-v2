@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/helpers/get-error-message";
 import { OnboardingMutationResponse } from "@/types/onboarding";
 import { onboardingEndpoints } from "@/services/onboarding";
+import { setOnboardingCompleteFlag } from "@/lib/onboarding/client-flag";
 
 function useOnboardingMutation<TInput>(
   mutationFn: (input: TInput) => Promise<OnboardingMutationResponse>,
@@ -16,6 +17,7 @@ function useOnboardingMutation<TInput>(
     mutationFn,
     onSuccess: (data) => {
       toast.success(data.message);
+      setOnboardingCompleteFlag(data.next_action === "dashboard");
       const destination =
         data.next_action === "dashboard"
           ? "/overview"

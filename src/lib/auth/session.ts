@@ -10,9 +10,12 @@ export const getServerSession = cache(
 
       return {
         id: vendor.id,
-        email: vendor.email,
+        email: vendor.user?.email,
         isVerified: vendor.is_verified,
         businessName: vendor.business_name,
+        firstName: vendor.user?.first_name,
+        lastName: vendor.user?.last_name,
+        avatarUrl: vendor.user?.avatar_url,
         logoUrl: vendor.logo_url,
       };
     } catch {

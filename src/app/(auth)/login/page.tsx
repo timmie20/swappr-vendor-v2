@@ -1,6 +1,12 @@
 import SignInForm from "@/features/login/page";
-import React from "react";
+import React, { Suspense } from "react";
 
+// SignInForm reads callbackUrl via useSearchParams, which bails out of
+// static rendering — Next requires a Suspense boundary around it
 export default function page() {
-  return <SignInForm />;
+  return (
+    <Suspense>
+      <SignInForm />
+    </Suspense>
+  );
 }

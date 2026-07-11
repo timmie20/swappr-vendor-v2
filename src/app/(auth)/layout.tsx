@@ -32,12 +32,8 @@ export default function AuthLayout({
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
             <p className="text-lg">
-              Swappr platform aims to create a secure and transparent system for
-              buying and swapping phones by implementing a phone rating
-              calculator to accurately represent device conditions, addressing
-              prevalent fraud in the Nigerian market. The system will utilize
-              diagnostic tools, user verification through KYC, and AI-driven
-              fraud prevention in future updates.
+              Stop selling in DMs. Get verified, get found, get paid — Swappr
+              turns your hustle into a real storefront.
             </p>
             <footer className="text-sm">Cheers 🍻</footer>
           </blockquote>

@@ -2,10 +2,13 @@ import type { ResponseCookies } from "next/dist/compiled/@edge-runtime/cookies";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import type { AuthTokens, RefreshResponse } from "@/types/auth";
 
+// Vendor-scoped names — the client app uses swappr_client_* so the two
+// apps never clobber each other's session (same host in dev, shared
+// .swappr.com.ng domain in prod)
 const COOKIE_NAMES = {
-  ACCESS_TOKEN: "swappr_access",
-  REFRESH_TOKEN: "swappr_refresh",
-  EXPIRES_AT: "swappr_expires_at",
+  ACCESS_TOKEN: "swappr_vendor_access",
+  REFRESH_TOKEN: "swappr_vendor_refresh",
+  EXPIRES_AT: "swappr_vendor_expires_at",
 } as const;
 
 const IS_PRODUCTION = process.env.NODE_ENV === "production";

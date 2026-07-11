@@ -1,6 +1,6 @@
 import { api } from "@/lib/api/client";
 import {
-  CompleteProfileInput,
+  CompleteProfilePayload,
   VerifyBusinessInput,
   VerifyIdInput,
 } from "@/schemas/onboarding";
@@ -34,7 +34,7 @@ export const onboardingEndpoints = {
   },
 
   async completeProfile(
-    input: CompleteProfileInput,
+    input: CompleteProfilePayload,
   ): Promise<OnboardingMutationResponse> {
     const { data } = await api.post<OnboardingMutationResponse>(
       "/vendor/onboarding/complete-profile",
