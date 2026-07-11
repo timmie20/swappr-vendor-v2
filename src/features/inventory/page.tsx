@@ -9,6 +9,7 @@ import { fetchCategories } from "@/server-actions/categories";
 import { categoriesQueryKeys } from "@/hooks/services/use-categories";
 import { defaultQueryParams } from "@/constants/query";
 import { fetchBrands } from "@/server-actions/brands";
+import { brandsQueryKeys } from "@/hooks/services/use-brand";
 
 export default async function InventoryPage() {
   const queryClient = getQueryClient();
@@ -25,7 +26,7 @@ export default async function InventoryPage() {
   });
 
   await queryClient.prefetchQuery({
-    queryKey: categoriesQueryKeys.all,
+    queryKey: brandsQueryKeys.all,
     queryFn: () => fetchBrands(),
     staleTime: 1000 * 60 * 60, // 1 hour
   });

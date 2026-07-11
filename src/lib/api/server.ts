@@ -19,7 +19,10 @@ export async function serverFetch<T>(
   endpoint: string,
   options: ServerFetchOptions = {},
 ): Promise<T> {
-  const { method = "GET", body, params, revalidate = 60, tags } = options;
+  // No caching by default — responses are per-vendor (Authorization header),
+  // and Next's data cache keys on URL, so cached entries could leak between
+  // vendors. Callers opt in with an explicit `revalidate` where safe.
+  const { method = "GET", body, params, revalidate = 0, tags } = options;
 
   // Read access token from HttpOnly cookie
   const cookieStore = await cookies();

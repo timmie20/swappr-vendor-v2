@@ -3,9 +3,9 @@ import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension
 import type { AuthTokens, RefreshResponse } from "@/types/auth";
 
 const COOKIE_NAMES = {
-  ACCESS_TOKEN: "_swappr_access",
-  REFRESH_TOKEN: "_swappr_refresh",
-  EXPIRES_AT: "_swappr_expires_at",
+  ACCESS_TOKEN: "swappr_access",
+  REFRESH_TOKEN: "swappr_refresh",
+  EXPIRES_AT: "swappr_expires_at",
 } as const;
 
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
@@ -13,10 +13,13 @@ const IS_PRODUCTION = process.env.NODE_ENV === "production";
 const BASE_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: IS_PRODUCTION,
-  sameSite: IS_PRODUCTION ? "lax" : "lax",
+  sameSite: "lax",
   path: "/",
   ...(IS_PRODUCTION && { domain: ".swappr.com.ng" }),
 } as const;
+
+// Access token lifetime — matches backend (50 minutes)
+const ACCESS_TOKEN_MAX_AGE = 60 * 50;
 
 // ─── Setters (used in Route Handlers after login / refresh) ───────────────
 export function setAuthCookies(
@@ -25,7 +28,7 @@ export function setAuthCookies(
 ): void {
   cookieStore.set(COOKIE_NAMES.ACCESS_TOKEN, tokens.access_token, {
     ...BASE_COOKIE_OPTIONS,
-    maxAge: 60 * 50, // 50 minutes — matches backend
+    maxAge: ACCESS_TOKEN_MAX_AGE,
   });
 
   cookieStore.set(COOKIE_NAMES.REFRESH_TOKEN, tokens.refresh_token, {
@@ -33,18 +36,13 @@ export function setAuthCookies(
     maxAge: 60 * 60 * 24 * 7,
   });
 
+  // Readable by client JS (session-client) — same attributes as the tokens
+  // so it follows them across subdomains, just not HttpOnly
   cookieStore.set(COOKIE_NAMES.EXPIRES_AT, String(tokens.expires_at), {
+    ...BASE_COOKIE_OPTIONS,
     httpOnly: false,
-    secure: IS_PRODUCTION,
-    sameSite: "strict" as const,
-    path: "/",
-    maxAge: 60 * 50, // must match access token
+    maxAge: ACCESS_TOKEN_MAX_AGE, // must match access token
   });
-
-  // console.log(
-  //   cookieStore.get(COOKIE_NAMES.ACCESS_TOKEN),
-  //   cookieStore.get(COOKIE_NAMES.REFRESH_TOKEN),
-  // );
 }
 
 export function updateAccessTokenCookie(
@@ -53,24 +51,34 @@ export function updateAccessTokenCookie(
 ) {
   cookieStore.set(COOKIE_NAMES.ACCESS_TOKEN, tokens.access_token, {
     ...BASE_COOKIE_OPTIONS,
-    maxAge: 60 * 15,
+    maxAge: ACCESS_TOKEN_MAX_AGE,
   });
 
   cookieStore.set(COOKIE_NAMES.EXPIRES_AT, String(tokens.expires_at), {
+    ...BASE_COOKIE_OPTIONS,
     httpOnly: false,
-    secure: IS_PRODUCTION,
-    sameSite: "strict",
-    path: "/",
-    maxAge: 60 * 15,
+    maxAge: ACCESS_TOKEN_MAX_AGE,
   });
 }
 
+// Deletion only matches a cookie whose domain/path attributes match the ones
+// it was set with, so reuse BASE_COOKIE_OPTIONS here
 export function clearAuthCookies(
   cookieStore: ResponseCookies | ReadonlyRequestCookies,
 ): void {
-  cookieStore.set(COOKIE_NAMES.ACCESS_TOKEN, "", { maxAge: 0, path: "/" });
-  cookieStore.set(COOKIE_NAMES.REFRESH_TOKEN, "", { maxAge: 0, path: "/" });
-  cookieStore.set(COOKIE_NAMES.EXPIRES_AT, "", { maxAge: 0, path: "/" });
+  cookieStore.set(COOKIE_NAMES.ACCESS_TOKEN, "", {
+    ...BASE_COOKIE_OPTIONS,
+    maxAge: 0,
+  });
+  cookieStore.set(COOKIE_NAMES.REFRESH_TOKEN, "", {
+    ...BASE_COOKIE_OPTIONS,
+    maxAge: 0,
+  });
+  cookieStore.set(COOKIE_NAMES.EXPIRES_AT, "", {
+    ...BASE_COOKIE_OPTIONS,
+    httpOnly: false,
+    maxAge: 0,
+  });
 }
 
 // ─── Getters ──────────────────────────────────────────────────────────────────

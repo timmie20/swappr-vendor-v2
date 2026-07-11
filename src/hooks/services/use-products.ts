@@ -71,7 +71,7 @@ export function useUpdateProduct() {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: productQueryKeys.all() });
       queryClient.invalidateQueries({
-        queryKey: [productQueryKeys.detail, variables.id],
+        queryKey: productQueryKeys.detail(variables.id),
       });
     },
     onError: (error) => {

@@ -11,12 +11,12 @@ export const getOnboardingStatus = cache(
   },
 );
 
-/** Use on each onboarding step page. Redirects to /dashboard if already
+/** Use on each onboarding step page. Redirects to the dashboard if already
  *  approved, or to the correct step if the vendor is on the wrong one. */
 export async function requireOnboardingStep(currentAction: NextAction) {
   const status = await getOnboardingStatus();
 
-  if (status.next_action === "dashboard") redirect("/dashboard");
+  if (status.next_action === "dashboard") redirect("/overview");
   if (status.next_action !== currentAction) {
     redirect(`/onboarding/${status.next_action}`);
   }
