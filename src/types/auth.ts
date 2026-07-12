@@ -59,6 +59,9 @@ export type VendorProfile = {
   operating_hours?: OperatingHours;
   landmark?: string;
   paystack_recipient_code?: string;
+  // Controls whether pickup is offered to buyers at checkout (client app).
+  // Settings UI to manage this is out of scope for now — field only.
+  pickup_enabled?: boolean;
   created_at?: string;
   updated_at?: string;
   // dashboard_stats?: VendorDashboardStats;

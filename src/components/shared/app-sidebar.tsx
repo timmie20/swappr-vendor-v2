@@ -15,6 +15,7 @@ import {
 } from "../ui/sidebar";
 import { NAV_ITEMS } from "@/constants/nav-items";
 import Image from "next/image";
+import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -133,6 +134,13 @@ export default function AppSidebar({ user }: AppSidebarProps) {
                 </DropdownMenuLabel>
 
                 <DropdownMenuSeparator />
+
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href="/account">
+                    <Icons.settings size={18} className="mr-1" />
+                    Account
+                  </Link>
+                </DropdownMenuItem>
 
                 <DropdownMenuItem
                   disabled={isPending}
