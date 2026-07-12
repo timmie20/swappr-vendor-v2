@@ -49,6 +49,37 @@ export interface DeliveryAddress {
   postal_code: string;
 }
 
+export enum FulfillmentType {
+  PICKUP = "pickup",
+  DELIVERY = "delivery",
+}
+
+export type EstimatedArrival = "same_day" | "within_24h" | "2_3_days";
+
+export const ESTIMATED_ARRIVAL_LABELS: Record<EstimatedArrival, string> = {
+  same_day: "Same day",
+  within_24h: "Within 24 hours",
+  "2_3_days": "2-3 days",
+};
+
+// Delivery/pickup-specific fields are only populated once the vendor
+// drives the order through processing -> shipped; pickup_location is the
+// exception — it's the vendor's verified address, snapshotted at order
+// creation, so it's present from the start on pickup orders.
+
+export interface OrderFulfillment {
+  fulfillment_type: FulfillmentType;
+  rider_name: string | null;
+  rider_phone: string | null;
+  delivery_fee: number | null;
+  estimated_arrival: EstimatedArrival | null;
+  pickup_location: DeliveryAddress | null;
+  pickup_date: string | null;
+  pickup_time_slot: string | null;
+  pickup_code: string | null;
+  tracking_number: string | null;
+}
+
 export interface Order {
   id: string;
   order_number: string;
@@ -61,11 +92,12 @@ export interface Order {
   vendor_id: string;
   delivery_address: DeliveryAddress;
   contact_phone: string;
+  fulfillment: OrderFulfillment | null;
   cancellation_reason: string | null;
   tracking_number: string | null;
   transaction_reference: string | null;
   confirmed_at: string | null;
-  shipped_at: string | null;
+  fulfillment_ready_at: string | null;
   delivered_at: string | null;
   expires_at: string | null;
   created_at: string;
@@ -85,22 +117,51 @@ export interface PaginatedOrders {
   limit: number;
 }
 
-// What the update status mutation accepts
+// What the update status mutation accepts.
+// `status` is the target status; extra fields depend on the transition.
+// Moving processing -> shipped now requires fulfillment-type-specific
+// fields instead of a vendor-entered tracking number — the backend
+// generates and returns the tracking number / pickup code itself.
 export interface UpdateOrderStatusPayload {
-  status: VendorUpdatableStatus;
+  status: OrderStatus;
+  cancellation_reason?: string;
+  rider_name?: string;
+  rider_phone?: string;
+  delivery_fee?: number;
+  estimated_arrival?: EstimatedArrival;
+  pickup_date?: string;
+  pickup_time_slot?: string;
 }
 
-// Vendors can only move orders to these three statuses
-export type VendorUpdatableStatus =
-  | OrderStatus.PROCESSING
-  | OrderStatus.SHIPPED
-  | OrderStatus.DELIVERED;
+export interface UpdateOrderStatusResponse {
+  message: string;
+  order: OrderDetails;
+}
 
-export const VENDOR_UPDATABLE_STATUSES: VendorUpdatableStatus[] = [
+// Linear forward progression a vendor can drive an order through.
+// Purchase orders auto-confirm on payment (pending -> confirmed happens via
+// webhook) and the swap-only pending -> confirmed/rejected actions don't have
+// a designed FE flow yet, so both are intentionally left out here.
+const FORWARD_STATUS_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus>> = {
+  [OrderStatus.CONFIRMED]: OrderStatus.PROCESSING,
+  [OrderStatus.PROCESSING]: OrderStatus.SHIPPED,
+  [OrderStatus.SHIPPED]: OrderStatus.DELIVERED,
+};
+
+export function getNextOrderStatus(status: OrderStatus): OrderStatus | null {
+  return FORWARD_STATUS_TRANSITIONS[status] ?? null;
+}
+
+// Cancellation is blocked once an order is shipped, delivered, cancelled or rejected.
+const CANCELLABLE_STATUSES: OrderStatus[] = [
+  OrderStatus.PENDING,
+  OrderStatus.CONFIRMED,
   OrderStatus.PROCESSING,
-  OrderStatus.SHIPPED,
-  OrderStatus.DELIVERED,
 ];
+
+export function canCancelOrder(status: OrderStatus): boolean {
+  return CANCELLABLE_STATUSES.includes(status);
+}
 
 // Extends the shared table params — room to add order-specific
 // filters (e.g. status filter) later without touching the hook

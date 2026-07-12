@@ -3,9 +3,11 @@ import {
   OrderDetails,
   OrderQueryParams,
   PaginatedOrders,
+  UpdateOrderStatusPayload,
 } from "@/features/orders/types";
 import { orderEndpoint } from "@/services/orders";
 import { ApiResponse } from "@/types";
+import { getErrorMessage } from "@/helpers/get-error-message";
 import {
   useMutation,
   useQuery,
@@ -13,14 +15,6 @@ import {
   keepPreviousData,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
-
-// type UpdateOrderStatusPayload = {
-//   id: string;
-//   status: OrderStatus;
-//   cancellation_reason?: string;
-//   tracking_number?: string;
-//   swap_device_assessed_value?: number;
-// };
 
 export function useOrders(params: OrderQueryParams) {
   return useQuery({
@@ -38,31 +32,28 @@ export function useOrderDetails(number: string) {
   });
 }
 
-// export function useUpdateOrderStatus() {
-//   const queryClient = useQueryClient();
+export function useUpdateOrderStatus() {
+  const queryClient = useQueryClient();
 
-//   return useMutation({
-//     mutationFn: async (payload: UpdateOrderStatusPayload) => {
-//       return await orderEndpoint.updateStatus(payload.id, {
-//         status: payload.status,
-//         cancellation_reason: payload.cancellation_reason,
-//         tracking_number: payload.tracking_number,
-//         swap_device_assessed_value: payload.swap_device_assessed_value,
-//       });
-//     },
-//     onSuccess: (_data, variables) => {
-//       toast.success("Order status updated successfully.", {
-//         position: "top-center",
-//       });
-//       queryClient.invalidateQueries({ queryKey: ["orders"] });
-//       queryClient.invalidateQueries({ queryKey: ["order", variables.id] });
-//     },
-//     onError: (error: any) => {
-//       const message =
-//         error?.response?.data?.message ||
-//         error?.message ||
-//         "Failed to update order status.";
-//       toast.error(message, { position: "top-center" });
-//     },
-//   });
-// }
+  return useMutation({
+    mutationFn: ({ id, ...payload }: { id: string } & UpdateOrderStatusPayload) =>
+      orderEndpoint.updateStatus(id, payload),
+    onSuccess: ({ order }) => {
+      toast.success("Order status updated successfully.");
+
+      // The PATCH response already contains the fresh order — write it
+      // straight into the detail cache so the details page updates
+      // instantly instead of waiting on a background refetch.
+      queryClient.setQueryData<ApiResponse<OrderDetails>>(
+        orderQueryKeys.detail(order.order_number),
+        { data: order },
+      );
+      queryClient.invalidateQueries({ queryKey: orderQueryKeys.lists() });
+    },
+    onError: (error) => {
+      toast.error("Failed to update order status", {
+        description: getErrorMessage(error),
+      });
+    },
+  });
+}

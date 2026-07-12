@@ -1,6 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { MoreVertical } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,9 +12,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { type Order, OrderStatus, VENDOR_UPDATABLE_STATUSES } from "./types";
+import {
+  type Order,
+  FulfillmentType,
+  OrderStatus,
+  canCancelOrder,
+  getNextOrderStatus,
+} from "./types";
 import { Icons } from "@/components/shared/icons";
-import { PAYMENT_BADGE_MAP, STATUS_BADGE_MAP } from "@/constants/badge";
+import {
+  FULFILLMENT_BADGE_MAP,
+  PAYMENT_BADGE_MAP,
+  STATUS_BADGE_MAP,
+} from "@/constants/badge";
 import { formatCurrency } from "@/helpers/format";
 import Link from "next/link";
 
@@ -24,11 +33,13 @@ import Link from "next/link";
 interface GetOrderColumnsOptions {
   // onView: (orderNumber: string) => void;
   onUpdateStatus: (order: Order) => void;
+  onCancelOrder: (order: Order) => void;
 }
 
 export function getOrderColumns({
   // onView,
   onUpdateStatus,
+  onCancelOrder,
 }: GetOrderColumnsOptions): ColumnDef<Order>[] {
   return [
     {
@@ -81,6 +92,27 @@ export function getOrderColumns({
       },
     },
     {
+      id: "fulfillment_type",
+      header: "Fulfillment",
+      accessorFn: (order) => order.fulfillment?.fulfillment_type,
+      cell: ({ row }) => {
+        const type = row.getValue<FulfillmentType | undefined>(
+          "fulfillment_type",
+        );
+        if (!type) return <span className="text-muted-foreground">—</span>;
+        const { label, variant } = FULFILLMENT_BADGE_MAP[type];
+        return <Badge variant={variant}>{label}</Badge>;
+      },
+      enableColumnFilter: true,
+      meta: {
+        variant: "multiSelect",
+        label: "Fulfillment",
+        options: Object.entries(FULFILLMENT_BADGE_MAP).map(
+          ([value, { label }]) => ({ value, label }),
+        ),
+      },
+    },
+    {
       accessorKey: "payment_status",
       header: "Payment",
       cell: ({ row }) => {
@@ -119,10 +151,8 @@ export function getOrderColumns({
       cell: ({ row }) => {
         const order = row.original;
 
-        // Only show update status option for orders the vendor can act on
-        const canUpdateStatus = VENDOR_UPDATABLE_STATUSES.some(
-          (s) => s !== order.status,
-        );
+        const canUpdateStatus = getNextOrderStatus(order.status) !== null;
+        const canCancel = canCancelOrder(order.status);
 
         return (
           <DropdownMenu>
@@ -143,6 +173,14 @@ export function getOrderColumns({
               {canUpdateStatus && (
                 <DropdownMenuItem onClick={() => onUpdateStatus(order)}>
                   <Icons.edit /> Update status
+                </DropdownMenuItem>
+              )}
+              {canCancel && (
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onClick={() => onCancelOrder(order)}
+                >
+                  <Icons.trash /> Cancel order
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>

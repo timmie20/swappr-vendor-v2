@@ -1,6 +1,6 @@
 import { BadgeProps } from "@/components/ui/badge";
 import { ProductStatus } from "@/features/inventory/types";
-import { OrderStatus } from "@/features/orders/types";
+import { FulfillmentType, OrderStatus } from "@/features/orders/types";
 
 type BadgeVariantProps = BadgeProps["variant"];
 
@@ -28,6 +28,17 @@ export const PAYMENT_BADGE_MAP: Record<
 > = {
   paid: { label: "Paid", variant: "paid" },
   unpaid: { label: "Unpaid", variant: "unpaid" },
+};
+
+export const FULFILLMENT_BADGE_MAP: Record<
+  FulfillmentType,
+  {
+    label: string;
+    variant: BadgeVariantProps;
+  }
+> = {
+  [FulfillmentType.PICKUP]: { label: "Pickup", variant: "outline" },
+  [FulfillmentType.DELIVERY]: { label: "Delivery", variant: "secondary" },
 };
 
 export const PRODUCT_BADGE_MAP: Record<

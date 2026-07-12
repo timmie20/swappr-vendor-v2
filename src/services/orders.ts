@@ -2,16 +2,11 @@ import {
   OrderDetails,
   OrderQueryParams,
   PaginatedOrders,
+  UpdateOrderStatusPayload,
+  UpdateOrderStatusResponse,
 } from "@/features/orders/types";
 import { api } from "@/lib/api/client";
 import { ApiResponse } from "@/types";
-
-// type UpdateOrderStatusPayload = {
-//   status: string;
-//   cancellation_reason?: string;
-//   tracking_number?: string;
-//   swap_device_assessed_value?: number;
-// };
 
 export const orderEndpoint = {
   async getAll(params?: OrderQueryParams): Promise<PaginatedOrders> {
@@ -24,8 +19,11 @@ export const orderEndpoint = {
     return data;
   },
 
-  // async updateStatus(id: string, payload: UpdateOrderStatusPayload) {
-  //   const { data } = await api.patch(`/orders/${id}/status`, payload);
-  //   return data;
-  // },
+  async updateStatus(
+    id: string,
+    payload: UpdateOrderStatusPayload,
+  ): Promise<UpdateOrderStatusResponse> {
+    const { data } = await api.patch(`/orders/${id}/status`, payload);
+    return data;
+  },
 };

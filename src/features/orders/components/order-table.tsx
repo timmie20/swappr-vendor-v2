@@ -8,7 +8,7 @@ import {
   getCoreRowModel,
   getSortedRowModel,
 } from "@tanstack/react-table";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useOrders } from "@/hooks/services/use-orders";
 import { getOrderColumns } from "../column";
 import { DataTable } from "@/components/table/data-table";
@@ -16,6 +16,8 @@ import { Order, OrderQueryParams, OrderStatus } from "../types";
 import { FilterConfig } from "@/types/data-table";
 import { DataTableToolbar } from "@/components/table/data-table-toolbar";
 import { useRouter } from "next/navigation";
+import { AdvanceStatusDialog } from "./advance-status-dialog";
+import { CancelOrderDialog } from "./cancel-order-dialog";
 
 // Defined outside the component — stable reference, no recreation on render
 const STATUS_FILTER_OPTIONS = Object.values(OrderStatus).map((status) => ({
@@ -61,11 +63,15 @@ export function OrdersTable() {
   //   route.push(`/orders/${orderNumber}`);
   // };
 
+  const [statusOrder, setStatusOrder] = useState<Order | null>(null);
+  const [cancelOrder, setCancelOrder] = useState<Order | null>(null);
+
   const columns = useMemo(
     () =>
       getOrderColumns({
         // onView: (orderNumber: string) => handleOnView(orderNumber),
-        onUpdateStatus: (order: Order) => console.log("update status", order),
+        onUpdateStatus: (order: Order) => setStatusOrder(order),
+        onCancelOrder: (order: Order) => setCancelOrder(order),
       }),
     [],
   );
@@ -84,22 +90,35 @@ export function OrdersTable() {
   });
 
   return (
-    <DataTable
-      table={table}
-      isLoading={isLoading}
-      isError={isError}
-      isFetching={isFetching}
-    >
-      <DataTableToolbar
-        searchPlaceholder="Search orders by number or customer"
-        searchValue={searchValue}
-        onSearchChange={onSearchChange}
-        filters={ORDER_FILTERS}
-        filterValues={filterValues}
-        onFilterChange={onFilterChange}
-        onResetFilters={onResetFilters}
-        hasActiveFilters={hasActiveFilters}
+    <>
+      <DataTable
+        table={table}
+        isLoading={isLoading}
+        isError={isError}
+        isFetching={isFetching}
+      >
+        <DataTableToolbar
+          searchPlaceholder="Search orders by number or customer"
+          searchValue={searchValue}
+          onSearchChange={onSearchChange}
+          filters={ORDER_FILTERS}
+          filterValues={filterValues}
+          onFilterChange={onFilterChange}
+          onResetFilters={onResetFilters}
+          hasActiveFilters={hasActiveFilters}
+        />
+      </DataTable>
+
+      <AdvanceStatusDialog
+        order={statusOrder}
+        open={!!statusOrder}
+        onOpenChange={(open) => !open && setStatusOrder(null)}
       />
-    </DataTable>
+      <CancelOrderDialog
+        order={cancelOrder}
+        open={!!cancelOrder}
+        onOpenChange={(open) => !open && setCancelOrder(null)}
+      />
+    </>
   );
 }
