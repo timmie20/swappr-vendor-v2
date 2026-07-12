@@ -10,8 +10,8 @@ export default function OrderDetailsPage({
 }: {
   orderNumber: string;
 }) {
-  const { data, isLoading, isError, refetch } = useOrderDetails(orderNumber);
-  // const { mutateAsync, isPending } = useUpdateOrderStatus(params.orderNumber);
+  const { data, isLoading, isError, isFetching, refetch } =
+    useOrderDetails(orderNumber);
 
   return (
     <React.Fragment>
@@ -28,8 +28,7 @@ export default function OrderDetailsPage({
         isLoading={isLoading}
         isError={isError}
         onRefresh={refetch}
-        // onUpdateStatus={mutateAsync}
-        // isUpdatingStatus={isPending}
+        isRefreshing={isFetching && !isLoading}
       />
     </React.Fragment>
   );
