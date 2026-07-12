@@ -1,7 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { SidebarTrigger } from "../ui/sidebar";
-import { Button } from "../ui/button";
 // import {
 //   Select,
 //   SelectContent,
@@ -9,10 +8,9 @@ import { Button } from "../ui/button";
 //   SelectTrigger,
 //   SelectValue,
 // } from "../ui/select";
-import { Bell } from "lucide-react";
 import { VendorSession } from "@/types/auth";
 import UserSummary from "../user-summary";
-import { Icons } from "./icons";
+import { NotificationBell } from "@/features/notifications/components/notification-bell";
 
 type HeaderProps = {
   user: VendorSession;
@@ -36,9 +34,7 @@ export default function Header({ user }: HeaderProps) {
         </div>
       </div>
       <div className="flex items-center space-x-4">
-        <Button variant="outline" size="icon-lg" className="cursor-pointer">
-          <Icons.bell className="h-4 w-4" />
-        </Button>
+        <NotificationBell />
 
         <UserSummary user={user} />
       </div>
