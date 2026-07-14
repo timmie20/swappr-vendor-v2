@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { BankAccountDialog } from "./bank-account-dialog";
 import { Icons } from "@/components/shared/icons";
 import { useTogglePickup } from "@/hooks/services/use-vendor";
 import { getInspectionState } from "@/features/inspection/lib";
@@ -112,10 +114,7 @@ export function SettingsCard({ profile }: { profile: VendorProfile }) {
         </div>
       )}
 
-      <RequestInspectionDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-      />
+      <RequestInspectionDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </Section>
   );
 }
@@ -130,21 +129,64 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 export function PayoutCard({ profile }: { profile: VendorProfile }) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  // account_name only exists after Paystack resolved the account — its
+  // presence is the "verified" signal
+  const hasAccount = !!profile.account_name;
+
   return (
     <Section
       title="Payout details"
       icon={Icons.billing}
       description="Where your earnings are paid out."
     >
-      <div className="-my-1 divide-y divide-gray-50">
-        <InfoRow label="Bank" value={profile.bank_name || "—"} />
-        <InfoRow label="Account name" value={profile.account_name || "—"} />
-      </div>
+      {hasAccount ? (
+        <div className="-my-1 divide-y divide-gray-50">
+          <InfoRow label="Bank" value={profile.bank_name || "—"} />
+          <InfoRow
+            label="Account number"
+            value={profile.account_number || "—"}
+          />
+          <InfoRow
+            label="Account name"
+            value={
+              <span className="inline-flex items-center gap-1">
+                {profile.account_name}
+                <Icons.shieldCheck
+                  className="text-primary size-3.5 shrink-0"
+                  aria-label="Account verified"
+                />
+              </span>
+            }
+          />
+        </div>
+      ) : (
+        <p className="text-muted-foreground text-sm leading-relaxed">
+          No payout account yet. Add your bank account so Swappr can pay out
+          your earnings.
+        </p>
+      )}
+
       <Separator className="my-3" />
-      <p className="text-muted-foreground text-xs leading-relaxed">
-        Payout details are verified during onboarding and can't be edited here.
-        Contact swappr support if you need to change.
+
+      <Button
+        variant="outline"
+        size="sm"
+        className="w-full"
+        onClick={() => setDialogOpen(true)}
+      >
+        {hasAccount ? "Change bank account" : "Add bank account"}
+      </Button>
+      <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
+        Account details are verified before they're saved.
       </p>
+
+      <BankAccountDialog
+        profile={profile}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      />
     </Section>
   );
 }

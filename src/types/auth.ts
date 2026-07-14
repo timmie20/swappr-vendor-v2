@@ -84,8 +84,12 @@ export type VendorProfile = {
   rating?: number;
   total_trades_completed?: number;
   onboarding_completed?: boolean;
-  bank_name?: string;
-  account_name?: string;
+  // Payout account — all null until set via POST /payments/bank-account.
+  // account_name is Paystack-resolved; its presence means "verified".
+  bank_name?: string | null;
+  bank_code?: string | null;
+  account_number?: string | null;
+  account_name?: string | null;
   store_photos?: string[];
   operating_hours?: OperatingHours;
   landmark?: string;
