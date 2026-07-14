@@ -42,9 +42,14 @@ export function NotificationBell() {
 
   const notifications = data?.notifications ?? [];
 
-  const handleSelect = (notification: AppNotification) => {
-    if (!notification.is_read) markRead.mutate(notification.id);
+  const handleMarkRead = (notificationId: string, isRead: boolean) => {
+    if (!isRead) markRead.mutate(notificationId);
+  };
 
+  // Selecting a notification only navigates — marking read is reserved
+  // for the explicit "View more" toggle so unread state isn't cleared
+  // by a stray click.
+  const handleSelect = (notification: AppNotification) => {
     const href = getNotificationHref(notification);
     if (href) {
       setOpen(false);
@@ -74,7 +79,7 @@ export function NotificationBell() {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="end" className="w-96 p-0">
+      <PopoverContent align="end" className="w-86 p-0">
         <div className="flex items-center justify-between px-4 py-3">
           <p className="text-sm font-semibold">Notifications</p>
           {unreadCount > 0 && (
@@ -110,6 +115,7 @@ export function NotificationBell() {
                   key={notification.id}
                   notification={notification}
                   onSelect={handleSelect}
+                  onMarkRead={handleMarkRead}
                 />
               ))}
             </div>
@@ -123,46 +129,91 @@ export function NotificationBell() {
 function NotificationItem({
   notification,
   onSelect,
+  onMarkRead,
 }: {
   notification: AppNotification;
   onSelect: (notification: AppNotification) => void;
+  onMarkRead: (notificationId: string, isRead: boolean) => void;
 }) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const time = formatDate(notification.created_at);
 
+  const handleExpandToggle = () => {
+    setIsExpanded((prev) => !prev);
+    onMarkRead(notification.id, notification.is_read);
+  };
+
   return (
-    <button
-      type="button"
-      onClick={() => onSelect(notification)}
+    <div
       className={cn(
-        "hover:bg-accent flex w-full cursor-pointer items-start gap-3 px-4 py-3 text-left transition-colors",
+        "hover:bg-accent flex w-full items-start gap-3 px-4 py-3 transition-colors",
         !notification.is_read && "bg-accent/40",
       )}
     >
+      {/* unread indicator dot */}
       <span
         className={cn(
-          "mt-1.5 size-2 shrink-0 rounded-full",
+          "mt-1.5 size-2 shrink-0 rounded-full transition-colors",
           notification.is_read ? "bg-transparent" : "bg-primary",
         )}
       />
-      <span className="min-w-0 flex-1 space-y-0.5">
-        <span
+
+      <div className="min-w-0 flex-1 space-y-1">
+        {/* title — triggers onSelect */}
+        <button
+          type="button"
+          onClick={() => onSelect(notification)}
+          className="block w-full text-left"
+        >
+          <span
+            className={cn(
+              "block truncate text-sm",
+              notification.is_read
+                ? "text-muted-foreground font-normal"
+                : "font-medium",
+            )}
+          >
+            {notification.title}
+          </span>
+        </button>
+
+        {/* animated message */}
+        <div
           className={cn(
-            "block truncate text-sm",
-            notification.is_read ? "font-normal" : "font-semibold",
+            "grid transition-all duration-300 ease-in-out",
+            isExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
           )}
         >
-          {notification.title}
-        </span>
-        <span className="text-muted-foreground line-clamp-2 block text-xs">
-          {notification.message}
-        </span>
-        {time && (
-          <span className="text-muted-foreground/70 block text-xs">
-            {time.relative}
-          </span>
-        )}
-      </span>
-    </button>
+          <div className="overflow-hidden">
+            <p className="text-muted-foreground pt-0.5 pb-1 text-xs">
+              {notification.message}
+            </p>
+          </div>
+        </div>
+
+        {/* timestamp + expand toggle */}
+        <div className="flex items-center justify-between">
+          {time && (
+            <span className="text-muted-foreground/70 text-xs">
+              {time.relative}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={handleExpandToggle}
+            className="text-primary ml-auto flex cursor-pointer items-center gap-0.5 text-xs transition-opacity hover:opacity-70"
+          >
+            {isExpanded ? "Show less" : "View more"}
+            <Icons.chevronDown
+              className={cn(
+                "h-3 w-3 transition-transform duration-300",
+                isExpanded && "rotate-180",
+              )}
+            />
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 

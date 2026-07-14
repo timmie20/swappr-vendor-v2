@@ -64,6 +64,7 @@ import {
   IconEyeOff,
   IconCirclePlus,
   IconPower,
+  IconChevronDown,
 } from "@tabler/icons-react";
 
 export type Icon = React.ComponentType<IconProps>;
@@ -79,6 +80,7 @@ export const Icons = {
   kanban: IconLayoutKanban,
   chevronLeft: IconChevronLeft,
   chevronRight: IconChevronRight,
+  chevronDown: IconChevronDown,
   trash: IconTrash,
   employee: IconUserX,
   post: IconFileText,
