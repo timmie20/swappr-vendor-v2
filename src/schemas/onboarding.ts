@@ -39,7 +39,22 @@ export interface OperatingHours {
   close_time: string;
 }
 
+// Matches the backend DTO for onboarding contact numbers
+const NG_PHONE = /^0[7-9][0-1]\d{8}$/;
+
+/** Optional override: empty means "accept the Prembly value", else min 2 */
+const overrideField = (message: string) =>
+  z.string().trim().min(2, message).optional().or(z.literal(""));
+
 export const completeProfileSchema = z.object({
+  contact_number: z
+    .string()
+    .trim()
+    .regex(NG_PHONE, "Enter a valid phone number, e.g. 08012345678"),
+  trading_name: overrideField("Trading name must be at least 2 characters"),
+  business_address: overrideField("Enter your business address"),
+  state: overrideField("Enter your state"),
+  city: overrideField("Enter your city"),
   description: z
     .string()
     .trim()
@@ -86,8 +101,15 @@ export const completeProfileSchema = z.object({
 
 export type CompleteProfileInput = z.infer<typeof completeProfileSchema>;
 
-/** Shape actually sent to POST /vendor/onboarding/complete-profile */
+/** Shape actually sent to POST /vendor/onboarding/complete-profile.
+ *  business_name is NOT accepted here (400) — it's locked to the CAC record.
+ *  Omitted override fields keep the Prembly-provided values as-is. */
 export interface CompleteProfilePayload {
+  contact_number: string;
+  trading_name?: string;
+  business_address?: string;
+  state?: string;
+  city?: string;
   description?: string;
   landmark?: string;
   operating_hours?: OperatingHours;

@@ -22,6 +22,9 @@ export function ProfileHero({ profile }: { profile: VendorProfile }) {
     ? format(new Date(profile.created_at), "MMM yyyy")
     : null;
 
+  // Trading name is the buyer-facing display name; CAC name is the fallback
+  const displayName = profile.trading_name ?? profile.business_name ?? "";
+
   return (
     <div className="border-border overflow-hidden rounded-lg border bg-white">
       {/* Accent band behind the logo */}
@@ -34,11 +37,11 @@ export function ProfileHero({ profile }: { profile: VendorProfile }) {
             <Avatar className="size-24 rounded-2xl border-4 border-white bg-white shadow-md">
               <AvatarImage
                 src={profile.logo_url}
-                alt={`${profile.business_name} logo`}
+                alt={`${displayName} logo`}
                 className="object-cover object-center"
               />
               <AvatarFallback className="rounded-2xl text-xl font-semibold">
-                {getInitials(profile.business_name) || (
+                {getInitials(displayName) || (
                   <Icons.store className="size-8 text-gray-400" />
                 )}
               </AvatarFallback>
@@ -47,7 +50,7 @@ export function ProfileHero({ profile }: { profile: VendorProfile }) {
             <div className="pb-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-xl font-bold tracking-tight text-gray-900">
-                  {profile.business_name}
+                  {displayName}
                 </h2>
                 {profile.is_verified ? (
                   <Badge className="gap-1">

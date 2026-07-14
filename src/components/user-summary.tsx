@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { Icons } from "./shared/icons";
-import Link from "next/link";
 import { VendorSession } from "@/types/auth";
 import {
   DropdownMenu,
@@ -56,15 +55,6 @@ export default function UserSummary({ user }: UserSummaryProps) {
               </p>
             </div>
           </DropdownMenuLabel>
-
-          <DropdownMenuItem asChild>
-            <Link
-              href="/edit-profile"
-              className="w-full cursor-pointer! justify-start py-3.5 pr-8 pl-3 tracking-wide"
-            >
-              <Icons.settings className="mr-3 size-5" /> Edit Profile
-            </Link>
-          </DropdownMenuItem>
 
           <DropdownMenuItem asChild>
             <Button

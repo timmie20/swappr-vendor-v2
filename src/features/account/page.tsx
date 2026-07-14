@@ -12,6 +12,7 @@ import {
   PayoutCard,
   SettingsCard,
 } from "./components/settings-card";
+import Typography from "@/components/ui/typography";
 
 function AccountSkeleton() {
   return (
@@ -47,8 +48,8 @@ function AccountError({ onRetry }: { onRetry: () => void }) {
         Couldn&apos;t load your account
       </h3>
       <p className="mb-5 max-w-xs text-sm text-gray-400">
-        There was a problem fetching your profile. Check your connection and
-        try again.
+        There was a problem fetching your profile. Check your connection and try
+        again.
       </p>
       <Button variant="outline" size="sm" onClick={onRetry} className="gap-2">
         <RotateCcw className="h-4 w-4" />
@@ -68,9 +69,9 @@ export default function AccountPage() {
     <div className="mx-auto max-w-6xl space-y-6">
       {/* ── Page header ── */}
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-gray-900">
-          Account
-        </h1>
+        <Typography variant="h2" className="text-left">
+          Manage Account
+        </Typography>
         <p className="text-muted-foreground mt-1 text-sm">
           Manage your store profile and how buyers interact with it.
         </p>

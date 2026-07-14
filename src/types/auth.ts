@@ -37,19 +37,50 @@ export interface VendorUser {
   email_verified?: boolean;
 }
 
+/** Response shape of the /vendor/settings/* actions */
+export interface VendorSettingsResponse {
+  status: boolean;
+  message: string;
+}
+
+export type VerificationCheckStatus = "pending" | "verified" | "rejected";
+
+/** Full verification record on /vendors/me — step-state display during onboarding */
+export interface VendorVerifications {
+  cac_status: VerificationCheckStatus | null;
+  id_status: VerificationCheckStatus | null;
+  cac_verified_at?: string | null;
+  id_verified_at?: string | null;
+  cac_rejection_reason?: string | null;
+  id_rejection_reason?: string | null;
+  verification_score?: number | null;
+  /** Raw provider payloads (Prembly) — shape not guaranteed */
+  cac_data?: Record<string, unknown> | null;
+  id_data?: Record<string, unknown> | null;
+}
+
 export type VendorProfile = {
   id: string;
   user_id: string;
   user: VendorUser;
-  business_name: string;
-  business_address?: string;
-  state?: string;
-  city?: string;
-  contact_number?: string;
+  // Written from the CAC record by verify-business; null until that step.
+  // Locked after that — display/edit trading_name instead.
+  business_name: string | null;
+  /** Editable display name — prefer trading_name ?? business_name */
+  trading_name?: string | null;
+  business_address?: string | null;
+  state?: string | null;
+  city?: string | null;
+  contact_number?: string | null;
+  contact_email?: string | null;
+  rc_number?: string | null;
   logo_url?: string;
   description?: string;
   is_verified: boolean;
   verification_status?: "pending" | "verified" | "rejected";
+  vendor_verifications?: VendorVerifications | null;
+  is_inspection_verified?: boolean;
+  inspection_requested_at?: string | null;
   rating?: number;
   total_trades_completed?: number;
   onboarding_completed?: boolean;
@@ -60,7 +91,7 @@ export type VendorProfile = {
   landmark?: string;
   paystack_recipient_code?: string;
   // Controls whether pickup is offered to buyers at checkout (client app).
-  // Settings UI to manage this is out of scope for now — field only.
+  // Only togglable once is_inspection_verified is true — see SettingsCard.
   pickup_enabled?: boolean;
   created_at?: string;
   updated_at?: string;

@@ -57,7 +57,7 @@ export function NotificationBell() {
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          size="icon-lg"
+          size="icon-sm"
           className="relative cursor-pointer"
           aria-label={
             unreadCount > 0

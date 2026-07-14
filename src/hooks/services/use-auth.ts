@@ -5,7 +5,6 @@ import { LoginCredentials } from "@/types/auth";
 import { authEndpoints } from "@/services/auth";
 import { notify } from "@/helpers/notify";
 import { getErrorMessage } from "@/helpers/get-error-message";
-import { useRouter } from "next/navigation";
 
 export const userKeys = {
   all: ["user"] as const,
@@ -20,7 +19,10 @@ export function useLogin() {
 
     onSuccess: async () => {
       notify.success("Successfully signed in");
-      queryClient.invalidateQueries({ queryKey: userKeys.all });
+      // Wipe everything, not just user keys — a previous vendor's session may
+      // have left notifications/orders/profile in the cache (e.g. expired
+      // session → login as a different account without an explicit logout)
+      queryClient.clear();
     },
     onError: (error: Error) => {
       notify.error(getErrorMessage(error));
@@ -29,17 +31,14 @@ export function useLogin() {
 }
 
 export function useLogout() {
-  const router = useRouter();
-
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: () => authEndpoints.logout(),
 
-    onSuccess: async (res) => {
-      notify.success(res.message || "Logged out successfully");
-      queryClient.invalidateQueries({ queryKey: userKeys.all });
-      router.push("/login");
+    onSuccess: async () => {
+      // Hard navigation, not router.push — tears down the whole JS runtime
+      // (React Query cache, router cache, polling intervals) so nothing from
+      // this vendor's session can leak into the next login on this browser
+      window.location.replace("/login");
     },
     onError: (error: Error) => {
       notify.error(getErrorMessage(error));

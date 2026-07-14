@@ -47,9 +47,12 @@ export default async function OnboardingLayout({
         </div>
       </div>
 
-      <main className="relative flex justify-center px-6 py-10 sm:px-10 lg:h-screen lg:items-center lg:overflow-y-auto lg:py-16">
+      {/* Vertical centering via my-auto (not items-center) — auto margins
+          collapse when the form is taller than the viewport, so the top
+          stays scrollable instead of being clipped */}
+      <main className="relative flex justify-center px-6 py-10 sm:px-10 lg:h-screen lg:overflow-y-auto lg:py-16">
         <LogoutButton className="text-muted-foreground absolute top-4 right-4" />
-        <div className="w-full max-w-md">{children}</div>
+        <div className="w-full max-w-md lg:my-auto">{children}</div>
       </main>
 
       <OnboardingFlagSync complete={false} />
