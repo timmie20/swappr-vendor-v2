@@ -17,11 +17,6 @@ export interface VendorSession {
   logoUrl?: string;
 }
 
-export interface RefreshResponse {
-  access_token: string;
-  expires_at: number;
-}
-
 export type LoginCredentials = {
   email: string;
   password: string;
