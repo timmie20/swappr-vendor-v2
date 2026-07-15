@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { STATUS_BADGE_MAP } from "@/constants/badge";
 import { formatCurrency, formatDate } from "@/helpers/format";
@@ -11,13 +12,18 @@ import { useRecentOrders } from "@/hooks/services/use-overview";
 import type { Order } from "@/features/orders/types";
 import { SectionRetry } from "./section-retry";
 
-export function RecentOrdersCard() {
+export function RecentOrdersCard({ height }: { height?: number }) {
   const { data, isLoading, isError, refetch } = useRecentOrders();
 
   const orders = data?.orders ?? [];
 
   return (
-    <Card>
+    // `height` is the sibling column's measured height (see OverviewBody) —
+    // min-h-96 only covers the first paint before that measurement lands.
+    <Card
+      className="flex min-h-96 flex-col"
+      style={height ? { height } : undefined}
+    >
       <CardHeader className="flex-row items-center justify-between space-y-0">
         <CardTitle className="text-base">Recent orders</CardTitle>
         <Link
@@ -28,7 +34,7 @@ export function RecentOrdersCard() {
         </Link>
       </CardHeader>
 
-      <CardContent className="px-2 pb-2">
+      <CardContent className="min-h-0 flex-1 px-2 pb-2">
         {isLoading ? (
           <RecentOrdersSkeleton />
         ) : isError ? (
@@ -41,11 +47,13 @@ export function RecentOrdersCard() {
             No orders yet — new orders will show up here.
           </p>
         ) : (
-          <div className="divide-y">
-            {orders.map((order) => (
-              <RecentOrderRow key={order.id} order={order} />
-            ))}
-          </div>
+          <ScrollArea className="h-full">
+            <div className="divide-y pr-2">
+              {orders.map((order) => (
+                <RecentOrderRow key={order.id} order={order} />
+              ))}
+            </div>
+          </ScrollArea>
         )}
       </CardContent>
     </Card>

@@ -65,6 +65,8 @@ import {
   IconCirclePlus,
   IconPower,
   IconChevronDown,
+  IconCalendar,
+  IconClock,
 } from "@tabler/icons-react";
 
 export type Icon = React.ComponentType<IconProps>;
@@ -135,4 +137,6 @@ export const Icons = {
   eyeOff: IconEyeOff,
   circlePlus: IconCirclePlus,
   power: IconPower,
+  calendar: IconCalendar,
+  clock: IconClock,
 };
