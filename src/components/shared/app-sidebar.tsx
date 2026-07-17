@@ -52,7 +52,7 @@ export default function AppSidebar({ user }: AppSidebarProps) {
 
   return (
     <Sidebar>
-      <SidebarHeader className="border-b px-6 py-4">
+      <SidebarHeader className="px-6 py-4">
         <div className="flex items-center space-x-2">
           <Image
             src={ASSETS.LOGO_DARK}
@@ -88,7 +88,9 @@ export default function AppSidebar({ user }: AppSidebarProps) {
                   <Avatar className="size-8 rounded-lg">
                     <AvatarImage
                       src={
-                        user.avatarUrl || user.logoUrl || "/no-profile-picture.jpg"
+                        user.avatarUrl ||
+                        user.logoUrl ||
+                        "/no-profile-picture.jpg"
                       }
                       alt={fullName}
                       className="object-cover object-center"

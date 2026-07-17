@@ -22,7 +22,7 @@ export default function Header({ user }: HeaderProps) {
   }, []);
 
   return (
-    <header className="bg-background sticky top-0 z-50 flex h-22 shrink-0 items-center justify-between border-b px-6">
+    <header className="bg-background sticky top-0 z-50 flex h-20 shrink-0 items-center justify-between border-b px-6">
       {" "}
       <div className="flex items-center space-x-4">
         <SidebarTrigger />
