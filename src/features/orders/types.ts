@@ -75,7 +75,8 @@ export interface OrderFulfillment {
   estimated_arrival: EstimatedArrival | null;
   pickup_location: DeliveryAddress | null;
   pickup_date: string | null;
-  pickup_time_slot: string | null;
+  pickup_time_from: string | null;
+  pickup_time_to: string | null;
   pickup_code: string | null;
   tracking_number: string | null;
 }
@@ -130,7 +131,8 @@ export interface UpdateOrderStatusPayload {
   delivery_fee?: number;
   estimated_arrival?: EstimatedArrival;
   pickup_date?: string;
-  pickup_time_slot?: string;
+  pickup_time_from?: string;
+  pickup_time_to?: string;
 }
 
 export interface UpdateOrderStatusResponse {

@@ -13,9 +13,29 @@ export const deliveryFulfillmentSchema = z.object({
 
 export type DeliveryFulfillmentInput = z.infer<typeof deliveryFulfillmentSchema>;
 
-export const pickupFulfillmentSchema = z.object({
-  pickup_date: z.string().min(1, "Select a pickup date"),
-  pickup_time_slot: z.string().trim().min(1, "Enter a pickup time slot"),
-});
+const TIME_24H = /^([01]\d|2[0-3]):[0-5]\d$/; // HH:mm — matches backend DTO
+
+export const pickupFulfillmentSchema = z
+  .object({
+    pickup_date: z.string().min(1, "Select a pickup date"),
+    pickup_time_from: z
+      .string()
+      .regex(TIME_24H, "Set a start time"),
+    pickup_time_to: z.string().regex(TIME_24H, "Set an end time"),
+  })
+  .superRefine((value, ctx) => {
+    // "HH:mm" strings compare correctly lexicographically
+    if (
+      TIME_24H.test(value.pickup_time_from) &&
+      TIME_24H.test(value.pickup_time_to) &&
+      value.pickup_time_to <= value.pickup_time_from
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["pickup_time_to"],
+        message: "End time must be after the start time",
+      });
+    }
+  });
 
 export type PickupFulfillmentInput = z.infer<typeof pickupFulfillmentSchema>;

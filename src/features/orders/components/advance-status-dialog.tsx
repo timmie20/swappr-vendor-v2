@@ -20,6 +20,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormDatePicker } from "@/components/forms/form-date-picker";
+import { FormTimePicker } from "@/components/forms/form-time-picker";
 import { STATUS_BADGE_MAP } from "@/constants/badge";
 import { useUpdateOrderStatus } from "@/hooks/services/use-orders";
 import {
@@ -115,7 +116,11 @@ function PickupFulfillmentForm({
 }) {
   const form = useForm<PickupFulfillmentInput>({
     resolver: zodResolver(pickupFulfillmentSchema),
-    defaultValues: { pickup_date: "", pickup_time_slot: "" },
+    defaultValues: {
+      pickup_date: "",
+      pickup_time_from: "",
+      pickup_time_to: "",
+    },
     mode: "onChange",
   });
 
@@ -130,14 +135,24 @@ function PickupFulfillmentForm({
             required
             disabled={isPending}
           />
-          <FormInput
-            control={form.control}
-            name="pickup_time_slot"
-            label="Pickup time slot"
-            placeholder="e.g. 10am - 12pm"
-            required
-            disabled={isPending}
-          />
+          <div className="grid grid-cols-2 gap-4">
+            <FormTimePicker
+              control={form.control}
+              name="pickup_time_from"
+              label="From"
+              placeholder="e.g. 10:00"
+              required
+              disabled={isPending}
+            />
+            <FormTimePicker
+              control={form.control}
+              name="pickup_time_to"
+              label="To"
+              placeholder="e.g. 12:00"
+              required
+              disabled={isPending}
+            />
+          </div>
         </FieldGroup>
       </form>
     </Form>
@@ -218,7 +233,19 @@ export function AdvanceStatusDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm">
+      <DialogContent
+        className="max-w-sm"
+        onInteractOutside={(event) => {
+          // timepicker-ui renders its clock popup by appending directly to
+          // document.body, outside this DialogContent's DOM subtree, so
+          // Radix sees clicks on it as "outside" and closes (unmounts) the
+          // dialog. Ignore interactions that land inside that popup.
+          const target = event.target as HTMLElement | null;
+          if (target?.closest(".tp-ui-modal")) {
+            event.preventDefault();
+          }
+        }}
+      >
         {resultCode ? (
           <>
             <DialogHeader>

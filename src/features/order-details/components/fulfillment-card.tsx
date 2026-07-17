@@ -1,4 +1,5 @@
 import { Package, Truck } from "lucide-react";
+import { format, parse } from "date-fns";
 
 import { formatCurrency, formatDate } from "@/helpers/format";
 import { FULFILLMENT_BADGE_MAP } from "@/constants/badge";
@@ -24,6 +25,15 @@ function CodeBlock({ label, value }: { label: string; value: string }) {
       <CopyButton value={value} label={label} />
     </div>
   );
+}
+
+// "HH:mm" (backend DTO format) -> "h:mm a" for display
+function formatTime(value: string) {
+  try {
+    return format(parse(value, "HH:mm", new Date()), "h:mm a");
+  } catch {
+    return value;
+  }
 }
 
 export function FulfillmentCard({ order }: { order: OrderDetails }) {
@@ -59,8 +69,11 @@ export function FulfillmentCard({ order }: { order: OrderDetails }) {
             {pickupDate && (
               <InfoRow label="Pickup date" value={pickupDate.full} />
             )}
-            {fulfillment.pickup_time_slot && (
-              <InfoRow label="Time slot" value={fulfillment.pickup_time_slot} />
+            {fulfillment.pickup_time_from && fulfillment.pickup_time_to && (
+              <InfoRow
+                label="Time window"
+                value={`${formatTime(fulfillment.pickup_time_from)} – ${formatTime(fulfillment.pickup_time_to)}`}
+              />
             )}
           </>
         ) : (

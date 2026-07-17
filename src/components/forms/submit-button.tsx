@@ -18,7 +18,7 @@ export const SubmitButton = forwardRef<HTMLButtonElement, SubmitButtonProps>(
         ref={ref}
         type="submit"
         disabled={isLoading || disabled}
-        className={cn("w-full gap-2", className)}
+        className={cn("w-full cursor-pointer gap-2", className)}
         {...props}
       >
         {isLoading && <Spinner className="h-4 w-4" />}
