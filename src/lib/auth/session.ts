@@ -1,39 +1,38 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { getAccessToken, getExpiresAt } from "./cookies";
 import type { VendorProfile, VendorSession } from "@/types/auth";
-import { serverApi } from "../api/server";
 import { cache } from "react";
+import { serverFetch } from "../api/server";
 
 /**
- * Use in Server Components and Route Handlers to get the current session.
- * Returns null if unauthenticated — does NOT redirect.
- * Use requireSession() when you need to enforce auth.
+ * Full vendor profile, server-side. Separate from getServerSession — pages
+ * like the onboarding review screen need fields (Prembly prefills, trading
+ * name) the session shape deliberately doesn't carry.
+ *
+ * revalidate: 0 for the same reason as getOnboardingStatus — the vendor may
+ * have just populated these fields via verification; stale data would render
+ * blank inputs where prefills are expected.
  */
+export const getServerVendorProfile = cache(
+  async (): Promise<VendorProfile> => {
+    return serverFetch<VendorProfile>("/vendors/me", { revalidate: 0 });
+  },
+);
+
 export const getServerSession = cache(
   async (): Promise<VendorSession | null> => {
-    const cookieStore = await cookies();
-    const accessToken = getAccessToken(cookieStore);
-
-    if (!accessToken) return null;
-
     try {
-      const { data: vendor } = await serverApi.get<VendorProfile>(
-        "/vendors/me",
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-      );
+      const vendor = await getServerVendorProfile();
 
       return {
         id: vendor.id,
-        email: vendor.email,
+        email: vendor.user?.email,
         isVerified: vendor.is_verified,
-        businessName: vendor.business_name,
+        // Both are null until their onboarding stage completes
+        businessName: vendor.trading_name ?? vendor.business_name ?? "",
+        firstName: vendor.user?.first_name,
+        lastName: vendor.user?.last_name,
+        avatarUrl: vendor.user?.avatar_url,
         logoUrl: vendor.logo_url,
-        // expiresAt: getExpiresAt(cookieStore) ?? 0,
       };
     } catch {
       return null;

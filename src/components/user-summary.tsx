@@ -1,6 +1,6 @@
+"use client";
 import React from "react";
 import { Icons } from "./shared/icons";
-import Link from "next/link";
 import { VendorSession } from "@/types/auth";
 import {
   DropdownMenu,
@@ -10,12 +10,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { useLogout } from "@/hooks/services/use-auth";
+import { Button } from "./ui/button";
 
 type UserSummaryProps = {
   user: VendorSession;
 };
 
 export default function UserSummary({ user }: UserSummaryProps) {
+  const { mutate: logOut } = useLogout();
   return (
     <div className="ml-2 flex">
       <DropdownMenu modal={false}>
@@ -41,7 +44,7 @@ export default function UserSummary({ user }: UserSummaryProps) {
               </p>
               <p>
                 {user?.isVerified && (
-                  <span className="inline-flex gap-1 items-center">
+                  <span className="inline-flex items-center gap-1">
                     Verified{" "}
                     <Icons.shieldCheck className="text-primary ml-1 inline-block size-4" />{" "}
                   </span>
@@ -54,24 +57,15 @@ export default function UserSummary({ user }: UserSummaryProps) {
           </DropdownMenuLabel>
 
           <DropdownMenuItem asChild>
-            <Link
-              href="/edit-profile"
-              className="w-full cursor-pointer! justify-start py-3.5 pr-8 pl-3 tracking-wide"
+            <Button
+              className="w-full cursor-pointer justify-start gap-2"
+              variant="ghost"
+              onClick={() => logOut()}
             >
-              <Icons.settings className="mr-3 size-5" /> Edit Profile
-            </Link>
+              <Icons.logout size={18} />
+              Log out
+            </Button>
           </DropdownMenuItem>
-
-          <form action="/api/auth/logout" method="post">
-            <DropdownMenuItem asChild>
-              <button
-                type="submit"
-                className="w-full cursor-pointer! justify-start py-3.5 pr-8 pl-3 tracking-wide"
-              >
-                <Icons.logout className="mr-3 size-5" /> Log Out
-              </button>
-            </DropdownMenuItem>
-          </form>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

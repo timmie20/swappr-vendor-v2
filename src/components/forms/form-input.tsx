@@ -19,7 +19,7 @@ interface FormInputProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > extends BaseFormFieldProps<TFieldValues, TName> {
-  type?: "text" | "email" | "password" | "number" | "tel" | "url";
+  type?: "text" | "email" | "password" | "number" | "tel" | "url" | "time";
   placeholder?: string;
   step?: string | number;
   min?: string | number;
@@ -81,7 +81,15 @@ function FormInput<
             disabled={disabled}
             aria-invalid={fieldState.invalid}
             className={showPasswordToggle ? "pr-10" : ""}
-            {...field}
+            name={field.name}
+            ref={field.ref}
+            onBlur={field.onBlur}
+            // Keep the DOM input controlled for its whole lifetime — the
+            // underlying RHF value may be `undefined` (unset) or a `number`
+            // (type="number"), but the value we render must never flip
+            // from undefined to defined or React warns about switching an
+            // uncontrolled input to controlled.
+            value={field.value ?? ""}
             onChange={(e) => {
               if (type === "number") {
                 const value = e.target.value;

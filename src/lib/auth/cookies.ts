@@ -1,30 +1,44 @@
 import type { ResponseCookies } from "next/dist/compiled/@edge-runtime/cookies";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
-import type { AuthTokens, RefreshResponse } from "@/types/auth";
+import type { AuthTokens } from "@/types/auth";
 
+// Vendor-scoped names — the client app uses swappr_client_* so the two
+// apps never clobber each other's session (same host in dev, shared
+// .swappr.com.ng domain in prod)
 const COOKIE_NAMES = {
-  ACCESS_TOKEN: "swappr_access",
-  REFRESH_TOKEN: "swappr_refresh_token",
-  EXPIRES_AT: "swappr_expires_at",
+  ACCESS_TOKEN: "swappr_vendor_access",
+  REFRESH_TOKEN: "swappr_vendor_refresh",
+  EXPIRES_AT: "swappr_vendor_expires_at",
 } as const;
-
-const BASE_COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "strict" as const,
-  path: "/",
-};
 
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
-// ─── Setters (used in Route Handlers after login / refresh) ───────────────
+const BASE_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: IS_PRODUCTION,
+  sameSite: "lax",
+  path: "/",
+  ...(IS_PRODUCTION && { domain: ".swappr.com.ng" }),
+} as const;
+
+// ─── Setters (used after login / refresh) ─────────────────────────────────
+// Refresh tokens rotate on every /auth/refresh call, so the token pair is
+// always written together — never persist a new access token without the
+// refresh token it was rotated with.
 export function setAuthCookies(
   cookieStore: ResponseCookies | ReadonlyRequestCookies,
   tokens: AuthTokens,
 ): void {
+  // Access-token lifetime comes from the backend's expires_at — never
+  // hardcode the TTL here (it changed from 50m to 15m once already)
+  const accessMaxAge = Math.max(
+    0,
+    Math.ceil((tokens.expires_at - Date.now()) / 1000),
+  );
+
   cookieStore.set(COOKIE_NAMES.ACCESS_TOKEN, tokens.access_token, {
     ...BASE_COOKIE_OPTIONS,
-    maxAge: 60 * 50, // 50 minutes — matches backend
+    maxAge: accessMaxAge,
   });
 
   cookieStore.set(COOKIE_NAMES.REFRESH_TOKEN, tokens.refresh_token, {
@@ -32,47 +46,33 @@ export function setAuthCookies(
     maxAge: 60 * 60 * 24 * 7,
   });
 
+  // Readable by client JS (session-client) — same attributes as the tokens
+  // so it follows them across subdomains, just not HttpOnly
   cookieStore.set(COOKIE_NAMES.EXPIRES_AT, String(tokens.expires_at), {
-    httpOnly: false,
-    secure: IS_PRODUCTION,
-    sameSite: "strict" as const,
-    path: "/",
-    maxAge: 60 * 50, // must match access token
-  });
-
-  // console.log(
-  //   cookieStore.get(COOKIE_NAMES.ACCESS_TOKEN),
-  //   cookieStore.get(COOKIE_NAMES.REFRESH_TOKEN),
-  // );
-}
-
-export function updateAccessTokenCookie(
-  cookieStore: ResponseCookies | ReadonlyRequestCookies,
-  tokens: RefreshResponse,
-) {
-  cookieStore.set(COOKIE_NAMES.ACCESS_TOKEN, tokens.access_token, {
     ...BASE_COOKIE_OPTIONS,
-    maxAge: 60 * 15,
-  });
-
-  cookieStore.set(COOKIE_NAMES.EXPIRES_AT, String(tokens.expires_at), {
     httpOnly: false,
-    secure: IS_PRODUCTION,
-    sameSite: "strict",
-    path: "/",
-    maxAge: 60 * 15,
+    maxAge: accessMaxAge, // must match access token
   });
 }
 
+// Deletion only matches a cookie whose domain/path attributes match the ones
+// it was set with, so reuse BASE_COOKIE_OPTIONS here
 export function clearAuthCookies(
   cookieStore: ResponseCookies | ReadonlyRequestCookies,
 ): void {
-  cookieStore.set(COOKIE_NAMES.ACCESS_TOKEN, "", { maxAge: 0, path: "/" });
-  cookieStore.set(COOKIE_NAMES.REFRESH_TOKEN, "", {
+  cookieStore.set(COOKIE_NAMES.ACCESS_TOKEN, "", {
+    ...BASE_COOKIE_OPTIONS,
     maxAge: 0,
-    path: "/api/auth/refresh",
   });
-  cookieStore.set(COOKIE_NAMES.EXPIRES_AT, "", { maxAge: 0, path: "/" });
+  cookieStore.set(COOKIE_NAMES.REFRESH_TOKEN, "", {
+    ...BASE_COOKIE_OPTIONS,
+    maxAge: 0,
+  });
+  cookieStore.set(COOKIE_NAMES.EXPIRES_AT, "", {
+    ...BASE_COOKIE_OPTIONS,
+    httpOnly: false,
+    maxAge: 0,
+  });
 }
 
 // ─── Getters ──────────────────────────────────────────────────────────────────

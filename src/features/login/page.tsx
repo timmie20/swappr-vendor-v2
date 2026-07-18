@@ -10,8 +10,11 @@ import Link from "next/link";
 import { Spinner } from "@/components/ui/spinner";
 import { FormInput } from "@/components/forms/form-input";
 import { signInSchema } from "@/schemas/auth";
-import { useLogin } from "@/hooks/use-auth";
+import { useLogin } from "@/hooks/services/use-auth";
 import Image from "next/image";
+import { ASSETS } from "@/constants/assets";
+import { SubmitButton } from "@/components/forms/submit-button";
+import { getOnboardingCompleteFlag } from "@/lib/onboarding/client-flag";
 
 type SignInFormValues = z.infer<typeof signInSchema>;
 
@@ -35,16 +38,22 @@ export default function SignInForm() {
   function onSubmit(values: SignInFormValues) {
     login.mutate(values, {
       onSuccess: () => {
-        router.push(redirect);
+        // Known-incomplete onboarding skips the dashboard hop (which would
+        // only redirect back out) and resumes at the right step directly.
+        // The flag is a local hint — if it's stale or unset, the server
+        // layouts still redirect to the correct place.
+        const destination =
+          getOnboardingCompleteFlag() === false ? "/onboarding" : redirect;
+        router.push(destination);
       },
     });
   }
 
   return (
     <div className="w-full space-y-6 px-4 md:px-0">
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center lg:hidden">
         <Image
-          src="/assets/swappr-logo-dark.png"
+          src={ASSETS.LOGO_DARK}
           alt="Swappr"
           width={200}
           height={40}
@@ -88,20 +97,13 @@ export default function SignInForm() {
         </FieldGroup>
 
         <Field orientation="horizontal">
-          <Button
-            type="submit"
-            className="h-12 w-full cursor-pointer"
+          <SubmitButton
+            isLoading={login.isPending}
             disabled={login.isPending}
-            size="lg"
+            loadingText="Signing in..."
           >
-            {login.isPending ? (
-              <span className="inline-flex items-center gap-2">
-                <Spinner /> Signing in
-              </span>
-            ) : (
-              "Sign in"
-            )}
-          </Button>
+            Sign in
+          </SubmitButton>
         </Field>
       </form>
 

@@ -1,0 +1,233 @@
+"use client";
+
+import {
+  useDeleteProduct,
+  useProducts,
+  useToggleProductPublish,
+} from "@/hooks/services/use-products";
+import { useFilterState } from "@/hooks/use-filter-state";
+import { useTableState } from "@/hooks/use-table-state";
+import React, { useMemo } from "react";
+import { Product, ProductQueryParams, ProductStatus } from "../types";
+import { getProductColumns } from "../column";
+import {
+  getCoreRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { DataTable } from "@/components/table/data-table";
+import { DataTableToolbar } from "@/components/table/data-table-toolbar";
+import { FilterConfig } from "@/types/data-table";
+import { useCategories } from "@/hooks/services/use-categories";
+import { formatToOptions } from "@/helpers/format";
+import { InventoryBulkActionBar } from "./inventory-bulk-action";
+import { Button } from "@/components/ui/button";
+import ResubaleSheet from "@/components/resuable-sheet";
+import AddProductForm from "./product-form";
+import { Icons } from "@/components/shared/icons";
+import EditProductForm from "./edit-product-form";
+import { DeleteAction } from "@/components/resuable-delete-dialog";
+
+// Static — no data dependency, safe outside the component
+const STATUS_FILTER_OPTIONS = Object.values(ProductStatus).map((status) => ({
+  label: status.charAt(0).toUpperCase() + status.slice(1),
+  value: status,
+}));
+
+export default function InventoryTable() {
+  const [isFormOpen, setIsFormOpen] = React.useState(false);
+
+  const [isEdit, setIsEdit] = React.useState<Product | null>(null);
+
+  const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
+
+  const {
+    tableState,
+    onPaginationChange,
+    onSortingChange,
+    searchValue,
+    onSearchChange,
+    queryParams,
+  } = useTableState();
+
+  const {
+    filterValues,
+    onFilterChange,
+    onResetFilters,
+    hasActiveFilters,
+    activeFilters,
+  } = useFilterState({ status: "", category_ids: "" });
+
+  const { data, isLoading, isError, isFetching } = useProducts({
+    ...queryParams,
+    ...(activeFilters as Partial<ProductQueryParams>),
+  });
+
+  // Cache is already warm from server prefetch — no loading state needed here
+  const { data: categoriesData } = useCategories();
+
+  const {
+    mutate: togglePublish,
+    isPending: isToggling,
+    variables,
+  } = useToggleProductPublish();
+
+  const { mutate: deleteProduct, isPending: isDeleting } = useDeleteProduct();
+
+  // Derived from async data — must live inside the component
+  const categoryFilterOptions = useMemo(
+    () => formatToOptions(categoriesData?.categories ?? [], ["id", "name"]),
+    [categoriesData?.categories],
+  );
+
+  // Rebuilt when categoryFilterOptions resolves, stable otherwise
+  const PRODUCT_FILTERS: FilterConfig[] = useMemo(
+    () => [
+      {
+        type: "select",
+        key: "status",
+        label: "Status",
+        options: STATUS_FILTER_OPTIONS,
+      },
+      {
+        type: "multi-select",
+        key: "category_ids",
+        label: "Category",
+        options: categoryFilterOptions,
+      },
+    ],
+    [categoryFilterOptions],
+  );
+
+  const handleProductEdit = (product: Product) => {
+    requestAnimationFrame(() => {
+      setIsFormOpen(true);
+      setIsEdit(product);
+    });
+  };
+
+  const handleDeleteTrigger = (product: Product) => {
+    requestAnimationFrame(() => {
+      setIsEdit(product);
+      setOpenDeleteDialog(true);
+    });
+  };
+
+  const handleDelete = (productId: string) => {
+    if (!isEdit) return;
+
+    deleteProduct(productId, {
+      onSuccess: () => {
+        setOpenDeleteDialog(false);
+        setIsEdit(null);
+      },
+    });
+  };
+
+  const columns = useMemo(
+    () =>
+      getProductColumns({
+        onEdit: (product) => handleProductEdit(product),
+        onDelete: (product) => handleDeleteTrigger(product),
+        onTogglePublish: (product) =>
+          togglePublish({
+            id: product.id || "",
+            is_active: !product.is_active,
+          }),
+        togglingId: isToggling ? variables?.id : undefined,
+      }),
+    [isToggling, variables?.id],
+  );
+
+  const unmountEdit = () => {
+    requestAnimationFrame(() => {
+      setIsEdit(null);
+      setIsFormOpen(false);
+    });
+  };
+
+  const onSheetOpenChange = (open: boolean) => {
+    if (!open) {
+      setIsEdit(null);
+    }
+    setIsFormOpen(open);
+  };
+
+  const onDeleteDialogOpenChange = (open: boolean) => {
+    if (!open) {
+      setIsEdit(null);
+    }
+    setOpenDeleteDialog(open);
+  };
+
+  const table = useReactTable({
+    data: data?.products ?? [],
+    columns,
+    rowCount: data?.total ?? 0,
+    state: tableState,
+    manualPagination: true,
+    manualSorting: true,
+    onPaginationChange,
+    onSortingChange,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+  return (
+    <>
+      <div className="flex items-center justify-end">
+        <ResubaleSheet
+          title={isEdit ? "Edit Product" : "Add New Product"}
+          description={
+            isEdit
+              ? "Update or Modify product details "
+              : "Fill in the details to add a new product to your inventory."
+          }
+          trigger={
+            <Button className="cursor-pointer">
+              <Icons.add />
+              Add Product
+            </Button>
+          }
+          open={isFormOpen}
+          onOpenChange={onSheetOpenChange}
+        >
+          {isEdit ? (
+            <EditProductForm
+              initialData={isEdit}
+              onSuccessAction={() => unmountEdit()}
+            />
+          ) : (
+            <AddProductForm onSuccessAction={() => setIsFormOpen(false)} />
+          )}
+        </ResubaleSheet>
+      </div>
+      <DataTable
+        table={table}
+        isLoading={isLoading}
+        isError={isError}
+        isFetching={isFetching}
+        actionBar={<InventoryBulkActionBar table={table} />}
+      >
+        <DataTableToolbar
+          searchPlaceholder="Search products"
+          searchValue={searchValue}
+          onSearchChange={onSearchChange}
+          filters={PRODUCT_FILTERS}
+          filterValues={filterValues}
+          onFilterChange={onFilterChange}
+          onResetFilters={onResetFilters}
+          hasActiveFilters={hasActiveFilters}
+        />
+      </DataTable>
+
+      <DeleteAction
+        entityName={isEdit?.name}
+        isPending={isDeleting}
+        isOpen={openDeleteDialog}
+        onOpenChange={onDeleteDialogOpenChange}
+        handleConfirm={() => handleDelete(isEdit?.id ?? "")}
+      />
+    </>
+  );
+}

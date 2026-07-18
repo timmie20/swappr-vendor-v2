@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   clearAuthCookies,
   COOKIE_NAMES,
-  updateAccessTokenCookie,
+  setAuthCookies,
 } from "./lib/auth/cookies";
-import { RefreshResponse } from "./types/auth";
-import { serverApi } from "./lib/api/server";
+import { attemptRefresh } from "./lib/auth/refresh";
 
 // Routes that don't require authentication
 const PUBLIC_ROUTES = ["/login", "/register", "/forgot-password"];
@@ -35,28 +34,6 @@ function isExpired(expiresAt: number | null, bufferMs = 60_000): boolean {
   return Date.now() >= expiresAt - bufferMs;
 }
 
-export async function attemptRefresh(
-  refreshToken: string,
-): Promise<RefreshResponse | null> {
-  console.log("Attempting token refresh with refresh token:", refreshToken);
-  try {
-    const { data } = await serverApi.post<RefreshResponse>("/auth/refresh", {
-      refresh_token: refreshToken,
-    });
-
-    if (!data.access_token || !data.expires_at) {
-      return null;
-    }
-
-    return {
-      access_token: data.access_token,
-      expires_at: new Date(data.expires_at).getTime(),
-    };
-  } catch {
-    return null;
-  }
-}
-
 export async function handleTokenRefresh(
   refreshToken: string,
   request: NextRequest,
@@ -70,7 +47,8 @@ export async function handleTokenRefresh(
   }
 
   const response = NextResponse.next();
-  updateAccessTokenCookie(response.cookies, newTokens);
+  // Persist the full rotated pair — the old refresh token is dead after use
+  setAuthCookies(response.cookies, newTokens);
   return response;
 }
 

@@ -13,3 +13,18 @@ export interface BaseFormFieldProps<
   disabled?: boolean;
   className?: string;
 }
+
+// Common option type for selects, radio groups, etc.
+export interface FormOption {
+  value: string;
+  label: string;
+  disabled?: boolean;
+}
+
+// Textarea specific types
+export interface TextareaConfig {
+  maxLength?: number;
+  showCharCount?: boolean;
+  rows?: number;
+  resize?: "none" | "vertical" | "horizontal" | "both";
+}
