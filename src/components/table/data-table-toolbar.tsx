@@ -30,6 +30,13 @@ interface DataTableToolbarProps {
   onFilterChange: (key: string, value: string | string[] | undefined) => void;
   onResetFilters: () => void;
   hasActiveFilters: boolean;
+
+  /**
+   * Extra filter controls that don't fit the generic FilterConfig shape
+   * (e.g. an amount range or a date-range picker). Rendered inline after
+   * the dynamic filters and before Reset.
+   */
+  children?: React.ReactNode;
 }
 
 // ---- Component ----------------------------------------------------------
@@ -43,6 +50,7 @@ export function DataTableToolbar({
   onFilterChange,
   onResetFilters,
   hasActiveFilters,
+  children,
 }: DataTableToolbarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -110,6 +118,8 @@ export function DataTableToolbar({
           }
           return null;
         })}
+
+        {children}
 
         {/* Reset — only shown when filters are active */}
         {hasActiveFilters && (

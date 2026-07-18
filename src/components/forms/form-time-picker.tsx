@@ -62,7 +62,10 @@ function FormTimePicker<
             "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
           )}
           options={{
-            clock: { type: "12h" }, // input value stays "HH:mm" — matches the schema
+            // 24h clock so the picker's own `hour` is already 0-23 — the
+            // 12h clock also returns an AM/PM `type` that onConfirm below
+            // doesn't read, which silently mis-stored PM times as AM.
+            clock: { type: "24h" },
             ui: { clearButton: true, theme: "basic" },
           }}
           onConfirm={({ hour, minutes }) => {
