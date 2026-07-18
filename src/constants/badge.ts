@@ -1,6 +1,7 @@
 import { BadgeProps } from "@/components/ui/badge";
 import { ProductStatus } from "@/features/inventory/types";
 import { FulfillmentType, OrderStatus } from "@/features/orders/types";
+import { PayoutStatus } from "@/features/payouts/types";
 
 type BadgeVariantProps = BadgeProps["variant"];
 
@@ -47,4 +48,14 @@ export const PRODUCT_BADGE_MAP: Record<
 > = {
   selling: { label: "Selling", variant: "default" },
   out_of_stock: { label: "Out of Stock", variant: "destructive" },
+};
+
+export const PAYOUT_BADGE_MAP: Record<
+  PayoutStatus,
+  { label: string; variant: BadgeVariantProps }
+> = {
+  [PayoutStatus.PENDING]: { label: "Pending", variant: "secondary" },
+  [PayoutStatus.PROCESSING]: { label: "Processing", variant: "unpaid" },
+  [PayoutStatus.COMPLETED]: { label: "Completed", variant: "paid" },
+  [PayoutStatus.FAILED]: { label: "Failed", variant: "destructive" },
 };

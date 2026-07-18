@@ -7,7 +7,7 @@ export interface VendorOverviewSummary {
   orders: {
     needs_action_count: number;
     this_month_count: number;
-    revenue_this_month: number;
+    total_earnings: number;
   };
   listings: {
     active_count: number;

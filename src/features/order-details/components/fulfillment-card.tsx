@@ -36,6 +36,22 @@ function formatTime(value: string) {
   }
 }
 
+function formatTime12h(time: string): string {
+  const [hourStr, minuteStr = "00"] = time.split(":");
+  const hour = parseInt(hourStr, 10);
+
+  if (isNaN(hour)) return time;
+
+  const period = hour >= 12 ? "PM" : "AM";
+  const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+
+  return `${hour12}:${minuteStr.padStart(2, "0")} ${period}`;
+}
+
+function formatTimeRange(from: string, to: string): string {
+  return `${formatTime12h(from)} – ${formatTime12h(to)}`;
+}
+
 export function FulfillmentCard({ order }: { order: OrderDetails }) {
   const { fulfillment } = order;
   if (!fulfillment) return null;

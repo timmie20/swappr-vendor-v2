@@ -32,6 +32,22 @@ export function useFilterState<T extends FilterShape>(initialFilters: T) {
     [setFilterParams],
   );
 
+  // For filters that must land as one URL update — e.g. a date range's
+  // from/to — so two sequential onFilterChange calls can't race each other
+  // over the same `prev` snapshot.
+  const onFilterChangeMultiple = useCallback(
+    (updates: Record<string, string | string[] | undefined>) => {
+      setFilterParams((prev) => {
+        const next = { ...prev };
+        for (const [key, value] of Object.entries(updates)) {
+          next[key] = Array.isArray(value) ? value.join(",") : (value ?? null);
+        }
+        return next;
+      });
+    },
+    [setFilterParams],
+  );
+
   const onResetFilters = useCallback(() => {
     setFilterParams(
       (prev) =>
@@ -47,6 +63,7 @@ export function useFilterState<T extends FilterShape>(initialFilters: T) {
   return {
     filterValues: filterParams as unknown as T,
     onFilterChange,
+    onFilterChangeMultiple,
     onResetFilters,
     hasActiveFilters,
     activeFilters: Object.fromEntries(

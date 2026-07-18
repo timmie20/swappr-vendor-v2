@@ -13,5 +13,6 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Overview", url: "/overview", icon: Icons.dashboard },
   { title: "Inventory", url: "/inventory", icon: Icons.product },
   { title: "Orders", url: "/orders", icon: Icons.package },
+  { title: "Payouts", url: "/payouts", icon: Icons.billing },
   { title: "Account", url: "/account", icon: Icons.settings },
 ];

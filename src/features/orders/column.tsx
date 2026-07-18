@@ -46,11 +46,19 @@ export function getOrderColumns({
       accessorKey: "order_number",
       header: "Order Number",
 
-      cell: ({ row }) => (
-        <span className="font-mono text-sm font-medium">
-          {row.getValue("order_number")}
-        </span>
-      ),
+      cell: ({ row }) => {
+        const orderNumber = row.getValue<string | null>("order_number");
+
+        return (
+          <Link
+            href={`/orders/${orderNumber}`}
+            className="text-primary block max-w-40 truncate font-mono text-sm hover:underline"
+            title={orderNumber || "—"}
+          >
+            {orderNumber || "—"}
+          </Link>
+        );
+      },
       meta: {
         label: "Search",
         placeholder: "Search orders by number or customer",
