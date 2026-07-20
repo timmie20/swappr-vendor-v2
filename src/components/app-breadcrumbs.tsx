@@ -95,7 +95,8 @@ export function AppBreadcrumb({
   };
 
   return (
-    <Breadcrumb className="mb-4">
+    // Navigation chrome — never part of a page's printable content
+    <Breadcrumb className="mb-4 print:hidden">
       <BreadcrumbList className="text-sm">
         {/* Non-collapsed render */}
         {flatItems.map((item, i) => renderItem(item, i, flatItems))}
