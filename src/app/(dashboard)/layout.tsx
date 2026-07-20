@@ -31,14 +31,23 @@ export default async function DashboardLayout({
     <SidebarProvider defaultOpen={true}>
       <NuqsAdapter>
         <div className="flex h-screen w-full overflow-hidden">
-          <AppSidebar user={session} />
+          {/* Sidebar, header and the inspection banner are app chrome —
+              printing a page (e.g. the order receipt) should only ever
+              produce the page's own printable content, never the nav. */}
+          <div className="print:hidden">
+            <AppSidebar user={session} />
+          </div>
 
           <SidebarInset className="flex min-h-0 flex-1 flex-col">
-            <Header user={session} />
+            <div className="print:hidden">
+              <Header user={session} />
 
-            {showInspectionBanner && <InspectionBanner vendorId={session.id} />}
+              {showInspectionBanner && (
+                <InspectionBanner vendorId={session.id} />
+              )}
+            </div>
 
-            <main className="min-h-0 flex-1 overflow-y-auto p-6">
+            <main className="min-h-0 flex-1 overflow-y-auto p-6 print:overflow-visible print:p-0">
               {children}
             </main>
           </SidebarInset>
