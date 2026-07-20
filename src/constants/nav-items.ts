@@ -1,6 +1,6 @@
 import { Icons } from "@/components/shared/icons";
 
-type NavItem = {
+export type NavItem = {
   title: string;
   url: string;
   icon: React.ComponentType<{
@@ -10,8 +10,9 @@ type NavItem = {
 };
 
 export const NAV_ITEMS: NavItem[] = [
-  { title: "Overview", url: "/dashboard", icon: Icons.dashboard },
-  { title: "Inventory", url: "/dashboard/inventory", icon: Icons.product },
-  { title: "Orders", url: "/dashboard/orders", icon: Icons.package },
-  { title: "Customers", url: "/dashboard/customers", icon: Icons.user2 },
+  { title: "Overview", url: "/overview", icon: Icons.dashboard },
+  { title: "Inventory", url: "/inventory", icon: Icons.product },
+  { title: "Orders", url: "/orders", icon: Icons.package },
+  { title: "Payouts", url: "/payouts", icon: Icons.billing },
+  { title: "Account", url: "/account", icon: Icons.settings },
 ];

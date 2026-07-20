@@ -60,6 +60,13 @@ import {
   IconLogout,
   IconEdit,
   IconCopy,
+  IconEye,
+  IconEyeOff,
+  IconCirclePlus,
+  IconPower,
+  IconChevronDown,
+  IconCalendar,
+  IconClock,
 } from "@tabler/icons-react";
 
 export type Icon = React.ComponentType<IconProps>;
@@ -75,6 +82,7 @@ export const Icons = {
   kanban: IconLayoutKanban,
   chevronLeft: IconChevronLeft,
   chevronRight: IconChevronRight,
+  chevronDown: IconChevronDown,
   trash: IconTrash,
   employee: IconUserX,
   post: IconFileText,
@@ -125,4 +133,10 @@ export const Icons = {
   store: IconBuildingStore,
   edit: IconEdit,
   copy: IconCopy,
+  eye: IconEye,
+  eyeOff: IconEyeOff,
+  circlePlus: IconCirclePlus,
+  power: IconPower,
+  calendar: IconCalendar,
+  clock: IconClock,
 };
